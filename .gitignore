@@ -29,6 +29,7 @@ hs_err_pid*
 *.launch
 .settings/
 .out
+build/
 
 #System Files
 .DS_Store

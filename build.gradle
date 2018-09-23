@@ -5,8 +5,10 @@ plugins {
 ext {
     javalin_version = "2.2.0"
     jackson_version = "2.9.7"
+    jackson_module_version = "2.8.10"
     slf4j_version = "1.7.25"
     koin_version = "1.0.1-alpha-1"
+    junit_version = "4.12"
 }
 
 group 'io.realworld'
@@ -21,8 +23,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "io.javalin:javalin:$javalin_version"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_module_version"
     implementation "org.slf4j:slf4j-simple:$slf4j_version"
     implementation "org.koin:koin-core:$koin_version"
+    testCompile "junit:junit:$junit_version"
 }
 
 compileKotlin {
