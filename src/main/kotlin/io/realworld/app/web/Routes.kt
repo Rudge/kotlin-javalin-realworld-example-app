@@ -32,7 +32,7 @@ class Routes {
                 }
                 path("/api/user") {
                     get(userController::getCurrent)
-                    put(userController::getCurrent)
+                    put(userController::update)
                 }
                 path("/api/profiles/:username") {
                     get(profileController::get)
