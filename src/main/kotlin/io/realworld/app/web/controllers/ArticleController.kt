@@ -8,7 +8,7 @@ import java.util.*
 class ArticleController {
 
     //TODO TEMP
-    private val user = User("", "", "", "", null, true)
+    private val user = User("", "", "", "", "", null, true)
     private val article = Article("", "", "", "", listOf(""), Date(), Date(), false, 0, user)
 
     fun findBy(ctx: Context) {

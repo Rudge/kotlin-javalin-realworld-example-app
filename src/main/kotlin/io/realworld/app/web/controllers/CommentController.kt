@@ -8,7 +8,7 @@ import java.util.*
 class CommentController {
 
     //TODO TEMP
-    private val user = User("", "", "", "", null, true)
+    private val user = User("", "", "", "", "", null, true)
     private val comment = Comment(0, Date(), Date(), "", user)
 
     fun add(ctx: Context) {
