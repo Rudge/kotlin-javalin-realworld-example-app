@@ -26,22 +26,22 @@ class Routes {
 
         fun register(app: Javalin) {
             app.routes {
-                path("/api/users") {
+                path("users") {
                     post("login", authController::login)
                     post(authController::register)
                 }
-                path("/api/user") {
+                path("user") {
                     get(userController::getCurrent)
                     put(userController::update)
                 }
-                path("/api/profiles/:username") {
+                path("profiles/:username") {
                     get(profileController::get)
                     path("follow") {
                         post(profileController::follow)
                         delete(profileController::unfollow)
                     }
                 }
-                path("/api/articles") {
+                path("articles") {
                     get(articleController::findBy)
                     post(articleController::create)
                     get("feed", articleController::feed)
@@ -60,7 +60,7 @@ class Routes {
                         }
                     }
                 }
-                path("/api/tags") {
+                path("tags") {
                     get(tagController::get)
                 }
             }

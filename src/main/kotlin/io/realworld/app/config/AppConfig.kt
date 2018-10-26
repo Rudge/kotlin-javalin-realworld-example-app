@@ -9,7 +9,9 @@ class AppConfig {
     companion object {
         fun configure(): Javalin {
             MapperConfig.configure()
-            val app = Javalin.create().enableCorsForAllOrigins()
+            val app = Javalin.create()
+                    .enableCorsForAllOrigins()
+                    .contextPath("api")
             Routes.register(app)
             ErrorExceptionMapping.register(app)
             return app
