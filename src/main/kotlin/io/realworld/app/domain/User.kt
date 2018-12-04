@@ -1,6 +1,6 @@
 package io.realworld.app.domain
 
-data class UserRequest(val user: User)
+data class UserDTO(val user: User)
 
 data class User(val email: String? = null,
                 val token: String? = null,

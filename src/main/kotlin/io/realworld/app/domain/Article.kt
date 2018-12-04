@@ -2,7 +2,9 @@ package io.realworld.app.domain
 
 import java.util.*
 
-data class ArticleRequest(val article: Article)
+data class ArticleDTO(val article: Article)
+
+data class ArticlesDTO(val articles: List<Article>, val articlesCount: Int)
 
 data class Article(val slug: String?,
                    val title: String,

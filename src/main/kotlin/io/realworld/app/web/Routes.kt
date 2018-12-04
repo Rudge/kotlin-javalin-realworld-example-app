@@ -7,7 +7,6 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.apibuilder.ApiBuilder.put
-import io.realworld.app.domain.Response
 import io.realworld.app.web.controllers.ArticleController
 import io.realworld.app.web.controllers.AuthController
 import io.realworld.app.web.controllers.CommentController
@@ -69,7 +68,7 @@ class Routes {
             }
         }
 
-        private fun asJsonResponse(ctx: Context, handler: KFunction1<@ParameterName(name = "ctx") Context, Response>) {
+        private fun asJsonResponse(ctx: Context, handler: KFunction1<@ParameterName(name = "ctx") Context, Any>) {
             ctx.json(handler.call(ctx))
         }
     }

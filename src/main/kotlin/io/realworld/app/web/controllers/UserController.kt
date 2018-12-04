@@ -1,20 +1,19 @@
 package io.realworld.app.web.controllers
 
 import io.javalin.Context
-import io.realworld.app.domain.Response
 import io.realworld.app.domain.User
-import io.realworld.app.domain.UserRequest
+import io.realworld.app.domain.UserDTO
 
 class UserController {
     //TODO TEMP
     private val user = User("", "", "", "", "", null, true)
 
-    fun getCurrent(ctx: Context): Response {
-        return Response("user", user)
+    fun getCurrent(ctx: Context): UserDTO {
+        return UserDTO(user)
     }
 
-    fun update(ctx: Context): Response {
-        val userRequest = ctx.validatedBody<UserRequest>().getOrThrow()
-        return Response("user", userRequest.user)
+    fun update(ctx: Context): UserDTO {
+        val userRequest = ctx.validatedBody<UserDTO>().getOrThrow()
+        return UserDTO(userRequest.user)
     }
 }
