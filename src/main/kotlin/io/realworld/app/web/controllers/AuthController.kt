@@ -6,7 +6,7 @@ import io.realworld.app.domain.UserDTO
 class AuthController {
 
     fun login(ctx: Context): UserDTO {
-        val userRequest = ctx.validatedBody<UserDTO>().getOrThrow()
+        val userRequest = ctx.body<UserDTO>()
         return UserDTO(userRequest.user)
     }
 

@@ -6,7 +6,7 @@ import io.realworld.app.domain.UserDTO
 
 class UserController {
     //TODO TEMP
-    private val user = User("", "", "", "", "", null, true)
+    private val user = User("", "", "", "", "", null)
 
     fun getCurrent(ctx: Context): UserDTO {
         return UserDTO(user)

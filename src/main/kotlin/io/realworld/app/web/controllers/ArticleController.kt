@@ -9,8 +9,8 @@ import java.util.*
 
 class ArticleController {
     //TODO TEMP
-    private val user = User("", "", "", "", "", null, true)
-    private val article = Article("", "", "", "", listOf(""), Date(), Date(), false, 0, user)
+    private val user = User("", "", "", "", "", null)
+    private val article = Article("1", "", "", "", listOf(""), Date(), Date(), false, 0, user)
 
     fun findBy(ctx: Context): ArticlesDTO {
         val tag = ctx.queryParams("tag")
@@ -55,7 +55,7 @@ class ArticleController {
 
     fun favorite(ctx: Context): ArticleDTO {
         val slug = ctx.validatedPathParam("slug")
-        return ArticleDTO(article)
+        return ArticleDTO(article.copy(favorited = true, favoritesCount = 1))
     }
 
     fun unfavorite(ctx: Context): ArticleDTO {

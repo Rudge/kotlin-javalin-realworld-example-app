@@ -1,25 +1,25 @@
 package io.realworld.app.web.controllers
 
 import io.javalin.Context
-import io.realworld.app.domain.User
-import io.realworld.app.domain.UserDTO
+import io.realworld.app.domain.Profile
+import io.realworld.app.domain.ProfileDTO
 
 class ProfileController {
     //TODO TEMP
-    private val user = User("", "", "", "", "", null, true)
+    private val profile = Profile("", "", "", true)
 
-    fun get(ctx: Context): UserDTO {
+    fun get(ctx: Context): ProfileDTO {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return UserDTO(user)
+        return ProfileDTO(profile)
     }
 
-    fun follow(ctx: Context): UserDTO {
+    fun follow(ctx: Context): ProfileDTO {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return UserDTO(user)
+        return ProfileDTO(profile)
     }
 
-    fun unfollow(ctx: Context): UserDTO {
+    fun unfollow(ctx: Context): ProfileDTO {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return UserDTO(user)
+        return ProfileDTO(profile.copy(following = false))
     }
 }

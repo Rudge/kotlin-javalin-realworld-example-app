@@ -9,12 +9,12 @@ import java.util.*
 
 class CommentController {
     //TODO TEMP
-    private val user = User("", "", "", "", "", null, true)
+    private val user = User("", "", "", "", "", null)
     private val comment = Comment(0, Date(), Date(), "", user)
 
     fun add(ctx: Context): CommentDTO {
         val slug = ctx.validatedPathParam("slug")
-        val commentValidate = ctx.validatedBody<Comment>()
+//        val commentValidate = ctx.validatedBody<Comment>()
         return CommentDTO(comment)
     }
 
