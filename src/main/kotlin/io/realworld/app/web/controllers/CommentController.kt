@@ -14,11 +14,11 @@ class CommentController {
 
     fun add(ctx: Context): CommentDTO {
         val slug = ctx.validatedPathParam("slug")
-        val comment = ctx
+        val commentRequest = ctx
                 .validatedBody<CommentDTO>()
                 .check({ !it.comment.body.isNullOrBlank() })
                 .getOrThrow()
-        return CommentDTO(comment.comment)
+        return CommentDTO(comment)
     }
 
     fun get(ctx: Context): CommentsDTO {

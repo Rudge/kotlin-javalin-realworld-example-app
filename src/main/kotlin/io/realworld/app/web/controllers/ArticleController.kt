@@ -51,12 +51,12 @@ class ArticleController {
 
     fun update(ctx: Context): ArticleDTO {
         val slug = ctx.validatedPathParam("slug")
-        val article = ctx.validatedBody<ArticleDTO>()
+        val articleRequest = ctx.validatedBody<ArticleDTO>()
                 .check({ it.article.title?.isNotBlank() ?: true })
                 .check({ it.article.description?.isNotBlank() ?: true })
                 .check({ !it.article.body.isNullOrBlank() })
                 .getOrThrow()
-        return ArticleDTO(article.article)
+        return ArticleDTO(article)
     }
 
     fun delete(ctx: Context) {
