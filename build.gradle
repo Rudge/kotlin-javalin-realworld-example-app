@@ -7,8 +7,6 @@ ext {
     slf4j_version = "1.7.25"
     koin_version = "1.+"
     junit_version = "4.+"
-    junit_platform = "1.+"
-    spek_version = "1.+"
     unirest_version = "1.+"
     auth0_jwt_version = "3.+"
 }
@@ -36,11 +34,11 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "io.javalin:javalin:$javalin_version"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
-    implementation "org.slf4j:slf4j-simple:$slf4j_version"
-    implementation "org.koin:koin-core:$koin_version"
+    compile "io.javalin:javalin:$javalin_version"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+    compile "org.slf4j:slf4j-simple:$slf4j_version"
+    compile "org.koin:koin-core:$koin_version"
     compile "com.auth0:java-jwt:$auth0_jwt_version"
 
     testCompile "junit:junit:$junit_version"
