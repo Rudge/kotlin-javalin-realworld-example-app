@@ -6,13 +6,13 @@ data class ArticleDTO(val article: Article)
 
 data class ArticlesDTO(val articles: List<Article>, val articlesCount: Int)
 
-data class Article(val slug: String?,
-                   val title: String,
-                   val description: String,
+data class Article(val slug: String? = null,
+                   val title: String? = null,
+                   val description: String? = null,
                    val body: String,
-                   val tagList: List<String>,
-                   var createdAt: Date?,
-                   var updatedAt: Date?,
-                   val favorited: Boolean,
-                   val favoritesCount: Long?,
-                   val author: User?)
+                   val tagList: List<String> = listOf(),
+                   var createdAt: Date? = null,
+                   var updatedAt: Date? = null,
+                   val favorited: Boolean = false,
+                   val favoritesCount: Long? = null,
+                   val author: User? = null)
