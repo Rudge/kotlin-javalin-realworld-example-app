@@ -28,46 +28,46 @@ object Routes : KoinComponent {
     fun register(app: Javalin) {
         app.routes {
             path("users") {
-                post { ctx -> asJsonResponse(ctx, authController::register) }
-                post("login") { ctx -> asJsonResponse(ctx, authController::login) }
+                post { ctx -> asJson(ctx, authController::register) }
+                post("login") { ctx -> asJson(ctx, authController::login) }
             }
             path("user") {
-                get { ctx -> asJsonResponse(ctx, userController::getCurrent) }
-                put { ctx -> asJsonResponse(ctx, userController::update) }
+                get { ctx -> asJson(ctx, userController::getCurrent) }
+                put { ctx -> asJson(ctx, userController::update) }
             }
             path("profiles/:username") {
-                get { ctx -> asJsonResponse(ctx, profileController::get) }
+                get { ctx -> asJson(ctx, profileController::get) }
                 path("follow") {
-                    post { ctx -> asJsonResponse(ctx, profileController::follow) }
-                    delete { ctx -> asJsonResponse(ctx, profileController::unfollow) }
+                    post { ctx -> asJson(ctx, profileController::follow) }
+                    delete { ctx -> asJson(ctx, profileController::unfollow) }
                 }
             }
             path("articles") {
-                get("feed") { ctx -> asJsonResponse(ctx, articleController::feed) }
+                get("feed") { ctx -> asJson(ctx, articleController::feed) }
                 path(":slug") {
                     path("comments") {
-                        post { ctx -> asJsonResponse(ctx, commentController::add) }
-                        get { ctx -> asJsonResponse(ctx, commentController::get) }
+                        post { ctx -> asJson(ctx, commentController::add) }
+                        get { ctx -> asJson(ctx, commentController::get) }
                         delete(":id", commentController::delete)
                     }
                     path("favorite") {
-                        post { ctx -> asJsonResponse(ctx, articleController::favorite) }
-                        delete { ctx -> asJsonResponse(ctx, articleController::unfavorite) }
+                        post { ctx -> asJson(ctx, articleController::favorite) }
+                        delete { ctx -> asJson(ctx, articleController::unfavorite) }
                     }
-                    get { ctx -> asJsonResponse(ctx, articleController::get) }
-                    put { ctx -> asJsonResponse(ctx, articleController::update) }
+                    get { ctx -> asJson(ctx, articleController::get) }
+                    put { ctx -> asJson(ctx, articleController::update) }
                     delete(articleController::delete)
                 }
-                get { ctx -> asJsonResponse(ctx, articleController::findBy) }
-                post { ctx -> asJsonResponse(ctx, articleController::create) }
+                get { ctx -> asJson(ctx, articleController::findBy) }
+                post { ctx -> asJson(ctx, articleController::create) }
             }
             path("tags") {
-                get { ctx -> asJsonResponse(ctx, tagController::get) }
+                get { ctx -> asJson(ctx, tagController::get) }
             }
         }
     }
 
-    private fun asJsonResponse(ctx: Context, handler: KFunction1<@ParameterName(name = "ctx") Context, Any>) {
+    private fun asJson(ctx: Context, handler: KFunction1<@ParameterName(name = "ctx") Context, Any>) {
         ctx.json(handler.call(ctx))
     }
 }
