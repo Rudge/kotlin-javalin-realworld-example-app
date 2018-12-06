@@ -28,7 +28,7 @@ hs_err_pid*
 .classpath
 *.launch
 .settings/
-.out
+out/
 build/
 
 #System Files
