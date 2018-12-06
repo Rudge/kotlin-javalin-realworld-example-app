@@ -38,7 +38,12 @@ class ArticleController {
     }
 
     fun create(ctx: Context): ArticleDTO {
-        val articleRequest = ctx.validatedBody<ArticleDTO>().getOrThrow()
+        val articleRequest = ctx
+                .validatedBody<ArticleDTO>()
+                .check({ !it.article.title.isNullOrBlank() })
+                .check({ !it.article.description.isNullOrBlank() })
+                .check({ !it.article.body.isNullOrBlank() })
+                .getOrThrow()
         articleRequest.article.createdAt = Date()
         articleRequest.article.updatedAt = Date()
         return ArticleDTO(article)
@@ -46,7 +51,12 @@ class ArticleController {
 
     fun update(ctx: Context): ArticleDTO {
         val slug = ctx.validatedPathParam("slug")
-        return ArticleDTO(article)
+        val article = ctx.validatedBody<ArticleDTO>()
+                .check({ it.article.title?.isNotBlank() ?: true })
+                .check({ it.article.description?.isNotBlank() ?: true })
+                .check({ !it.article.body.isNullOrBlank() })
+                .getOrThrow()
+        return ArticleDTO(article.article)
     }
 
     fun delete(ctx: Context) {
