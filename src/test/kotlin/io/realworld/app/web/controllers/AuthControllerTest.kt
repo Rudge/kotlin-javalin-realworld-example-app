@@ -1,26 +1,31 @@
 package io.realworld.app.web.controllers
 
+import io.javalin.Javalin
 import io.javalin.util.HttpUtil
 import io.realworld.app.config.AppConfig
 import io.realworld.app.domain.User
 import io.realworld.app.domain.UserDTO
 import io.realworld.app.web.ErrorResponse
 import org.eclipse.jetty.http.HttpStatus
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 
 class AuthControllerTest {
-
-    companion object {
-        val app = AppConfig.setup()
-        val http = HttpUtil(app.port())
-    }
+    private lateinit var app: Javalin
+    private lateinit var http: HttpUtil
 
     @Before
     fun init() {
-        app.start()
+        app = AppConfig().setup().start()
+        http = HttpUtil(app.port())
+    }
+
+    @After
+    fun cleanTokenHeader() {
+        app.stop()
     }
 
     @Test
@@ -37,7 +42,7 @@ class AuthControllerTest {
         val response = http.post<UserDTO>("/api/users/login", userDTO)
 
         assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.user.username, userDTO.user.username)
+        assertEquals(response.body.user.email, userDTO.user.email)
         assertEquals(response.body.user.password, userDTO.user.password)
         assertNotNull(response.body.user.token)
     }

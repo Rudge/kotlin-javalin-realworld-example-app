@@ -18,7 +18,7 @@ class CommentController {
                 .validatedBody<CommentDTO>()
                 .check({ !it.comment.body.isNullOrBlank() })
                 .getOrThrow()
-        return CommentDTO(comment)
+        return CommentDTO(comment.copy(body = commentRequest.comment.body))
     }
 
     fun get(ctx: Context): CommentsDTO {

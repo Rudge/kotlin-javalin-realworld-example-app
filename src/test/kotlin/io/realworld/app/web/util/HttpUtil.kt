@@ -10,6 +10,8 @@ import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import io.javalin.core.util.Header
 import io.javalin.json.JavalinJson
+import io.realworld.app.domain.User
+import io.realworld.app.domain.UserDTO
 
 class HttpUtil(port: Int) {
 
@@ -26,11 +28,6 @@ class HttpUtil(port: Int) {
                 return return JavalinJson.toJson(value)
             }
         })
-    }
-
-    fun headers(headers: Map<String, String>): HttpUtil {
-        this.headers.putAll(headers)
-        return this
     }
 
     @JvmField
@@ -53,4 +50,10 @@ class HttpUtil(port: Int) {
 
     fun deleteWithoutBody(path: String) =
             Unirest.delete(origin + path).headers(headers).asString()
+
+    fun loginAndSetTokenHeader(email: String, password: String) {
+        val userDTO = UserDTO(User(email = email, password = password))
+        val response = post<UserDTO>("/api/users/login", userDTO)
+        headers["Authorization"] = "Token ${response.body.user.token}"
+    }
 }

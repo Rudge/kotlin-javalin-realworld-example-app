@@ -10,16 +10,16 @@ class ProfileController {
 
     fun get(ctx: Context): ProfileDTO {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return ProfileDTO(profile)
+        return ProfileDTO(profile.copy(username = username))
     }
 
     fun follow(ctx: Context): ProfileDTO {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return ProfileDTO(profile)
+        return ProfileDTO(profile.copy(username = username))
     }
 
     fun unfollow(ctx: Context): ProfileDTO {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return ProfileDTO(profile.copy(following = false))
+        return ProfileDTO(profile.copy(username = username, following = false))
     }
 }

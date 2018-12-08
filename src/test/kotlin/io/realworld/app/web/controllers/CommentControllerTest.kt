@@ -1,30 +1,37 @@
 package io.realworld.app.web.controllers
 
+import io.javalin.Javalin
 import io.javalin.util.HttpUtil
 import io.realworld.app.config.AppConfig
 import io.realworld.app.domain.Comment
 import io.realworld.app.domain.CommentDTO
 import io.realworld.app.domain.CommentsDTO
 import org.eclipse.jetty.http.HttpStatus
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class CommentControllerTest {
-
-    companion object {
-        val app = AppConfig.setup()
-        val http = HttpUtil(app.port())
-    }
+    private lateinit var app: Javalin
+    private lateinit var http: HttpUtil
 
     @Before
     fun init() {
-        app.start()
+        app = AppConfig().setup().start()
+        http = HttpUtil(app.port())
+    }
+
+    @After
+    fun cleanTokenHeader() {
+        app.stop()
     }
 
     @Test
     fun `add comment for article by slug`() {
+        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+
         val slug = "slugTest"
         val comment = Comment(body = "Very carefully.")
         val response = http.post<CommentDTO>("/api/articles/$slug/comments",
@@ -45,6 +52,8 @@ class CommentControllerTest {
 
     @Test
     fun `delete comment for article by slug`() {
+        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+
         val slug = "slugTest"
         val commentId = "1"
         val response = http.deleteWithoutBody("/api/articles/$slug/comments/$commentId")

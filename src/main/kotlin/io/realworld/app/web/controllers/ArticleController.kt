@@ -13,21 +13,21 @@ class ArticleController {
     private val article = Article("1", "", "", "", listOf(""), Date(), Date(), false, 0, user)
 
     fun findBy(ctx: Context): ArticlesDTO {
-        val tag = ctx.queryParams("tag")
-        val author = ctx.queryParams("author")
-        val favorited = ctx.queryParams("favorited")
-        val limit = ctx.queryParams("limit")
-        val offset = ctx.queryParams("offset")
-        val articles = listOf(article)
+        val tag = ctx.queryParam("tag")
+        val author = ctx.queryParam("author")
+        val favorited = ctx.queryParam("favorited")
+        val limit = ctx.queryParam("limit")
+        val offset = ctx.queryParam("offset")
+        val articles = listOf(article.copy(tagList = listOf(tag ?: ""), author = user.copy(username = author)))
         return ArticlesDTO(articles, articles.size)
     }
 
     fun feed(ctx: Context): ArticlesDTO {
-        val tag = ctx.queryParams("tag")
-        val author = ctx.queryParams("author")
-        val favorited = ctx.queryParams("favorited")
-        val limit = ctx.queryParams("limit")
-        val offset = ctx.queryParams("offset")
+        val tag = ctx.queryParam("tag")
+        val author = ctx.queryParam("author")
+        val favorited = ctx.queryParam("favorited")
+        val limit = ctx.queryParam("limit")
+        val offset = ctx.queryParam("offset")
         val articles = listOf(article)
         return ArticlesDTO(articles, articles.size)
     }
@@ -46,7 +46,8 @@ class ArticleController {
                 .getOrThrow()
         articleRequest.article.createdAt = Date()
         articleRequest.article.updatedAt = Date()
-        return ArticleDTO(article)
+        return ArticleDTO(article.copy(title = articleRequest.article.title, description = articleRequest.article
+                .description, body = articleRequest.article.body, tagList = articleRequest.article.tagList))
     }
 
     fun update(ctx: Context): ArticleDTO {
@@ -56,7 +57,7 @@ class ArticleController {
                 .check({ it.article.description?.isNotBlank() ?: true })
                 .check({ !it.article.body.isNullOrBlank() })
                 .getOrThrow()
-        return ArticleDTO(article)
+        return ArticleDTO(article.copy(body = articleRequest.article.body))
     }
 
     fun delete(ctx: Context) {
