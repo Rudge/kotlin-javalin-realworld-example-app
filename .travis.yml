@@ -4,7 +4,3 @@ jdk:
   - openjdk9
   - openjdk10
   - openjdk11
-before_install:
-  - chmod +x gradlew
-script:
-  - ./gradlew clean build
