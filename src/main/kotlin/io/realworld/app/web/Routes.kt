@@ -55,7 +55,7 @@ class Routes(private val authController: AuthController,
                         post({ ctx -> asJson(ctx, articleController::favorite) }, roles(Roles.AUTHENTICATED))
                         delete({ ctx -> asJson(ctx, articleController::unfavorite) }, roles(Roles.AUTHENTICATED))
                     }
-                    get({ ctx -> asJson(ctx, articleController::get) }, roles(Roles.ANYONE))
+                    get({ ctx -> asJson(ctx, articleController::get) }, rolesOptionalAuthenticated)
                     put({ ctx -> asJson(ctx, articleController::update) }, roles(Roles.AUTHENTICATED))
                     delete(articleController::delete, roles(Roles.AUTHENTICATED))
                 }
