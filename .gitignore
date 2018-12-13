@@ -11,7 +11,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -30,6 +29,9 @@ hs_err_pid*
 .settings/
 out/
 build/
+
+#Gradle
+.gradle/
 
 #System Files
 .DS_Store
