@@ -1,3 +1,5 @@
+[![Travis](https://img.shields.io/travis/Rudge/kotlin-javalin-realworld-example-app.svg)](https://travis-ci.org/Rudge/kotlin-javalin-realworld-example-app/builds)
+
 # ![RealWorld Example App](logo.png)
 
 > ### Javalin codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
