@@ -9,6 +9,9 @@ ext {
     junit_version = "4.+"
     unirest_version = "1.+"
     auth0_jwt_version = "3.+"
+    hikaricp_version = "3.+"
+    h2_version = "1.+"
+    exposed_version = "0.11.+"
 }
 
 buildscript {
@@ -40,6 +43,9 @@ dependencies {
     compile "org.slf4j:slf4j-simple:$slf4j_version"
     compile "org.koin:koin-core:$koin_version"
     compile "com.auth0:java-jwt:$auth0_jwt_version"
+    compile "com.zaxxer:HikariCP:$hikaricp_version"
+    compile "com.h2database:h2:$h2_version"
+    compile "org.jetbrains.exposed:exposed:$exposed_version"
 
     testCompile "junit:junit:$junit_version"
     testCompile "com.mashape.unirest:unirest-java:$unirest_version"

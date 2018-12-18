@@ -15,6 +15,9 @@ object ModulesConfig {
         single { AppConfig() }
         single { JwtProvider() }
         single { AuthConfig(get()) }
+        single {
+            DbConfig(getProperty("jdbc.url"), getProperty("dbusername"), getProperty("db.password")).getDataSource()
+        }
         single { Routes(get(), get(), get(), get(), get(), get()) }
         single { AuthController(get()) }
         single { UserController() }
