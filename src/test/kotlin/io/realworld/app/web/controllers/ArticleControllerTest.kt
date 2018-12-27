@@ -7,16 +7,33 @@ import io.realworld.app.domain.Article
 import io.realworld.app.domain.ArticleDTO
 import io.realworld.app.domain.ArticlesDTO
 import org.eclipse.jetty.http.HttpStatus
+import org.h2.tools.Server
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 
 class ArticleControllerTest {
     private lateinit var app: Javalin
     private lateinit var http: HttpUtil
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun before() {
+            Server.createTcpServer().start()
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun after() {
+            Server.createTcpServer().stop()
+        }
+    }
 
     @Before
     fun init() {
@@ -40,7 +57,10 @@ class ArticleControllerTest {
 
     @Test
     fun `get all articles with auth`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "get_all_articles@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val response = http.get<ArticlesDTO>("/api/articles")
 
@@ -62,7 +82,10 @@ class ArticleControllerTest {
 
     @Test
     fun `get all articles by author with auth`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "get_all_articles_author@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
         val author = "teste"
         val response = http.get<ArticlesDTO>("/api/articles", mapOf("author" to author))
 
@@ -83,7 +106,10 @@ class ArticleControllerTest {
 
     @Test
     fun `get all articles favorited by username with auth`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "get_all_articles_favorited@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val response = http.get<ArticlesDTO>("/api/articles", mapOf("favorited" to "teste"))
 
@@ -105,7 +131,10 @@ class ArticleControllerTest {
 
     @Test
     fun `create article`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "create_article@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val article = Article(title = "How to train your dragon",
                 description = "Ever wonder how?",
@@ -123,7 +152,10 @@ class ArticleControllerTest {
 
     @Test
     fun `get all articles of feed`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "get_all_articles_feed@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val response = http.get<ArticlesDTO>("/api/articles/feed")
 
@@ -147,10 +179,13 @@ class ArticleControllerTest {
 
     @Test
     fun `update article by slug`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "update_article@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val slug = "slugTest"
-        val article = Article(body = "Very carefully.")
+        val article = Article(body = "Very carefully.", title = "Teste", description = "Teste Desc")
         val response = http.put<ArticleDTO>("/api/articles/$slug", ArticleDTO(article))
 
         assertEquals(response.status, HttpStatus.OK_200)
@@ -163,7 +198,10 @@ class ArticleControllerTest {
 
     @Test
     fun `favorite article by slug`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "favorite_article@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val slug = "slugTest"
         val response = http.post<ArticleDTO>("/api/articles/$slug/favorite")
@@ -178,7 +216,10 @@ class ArticleControllerTest {
 
     @Test
     fun `unfavorite article by slug`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "unfavorite_article@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val slug = "slugTest"
         val response = http.delete<ArticleDTO>("/api/articles/$slug/favorite")
@@ -193,7 +234,10 @@ class ArticleControllerTest {
 
     @Test
     fun `delete article by slug`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "delete_article@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val slug = "slugTest"
         val response = http.deleteWithoutBody("/api/articles/$slug")

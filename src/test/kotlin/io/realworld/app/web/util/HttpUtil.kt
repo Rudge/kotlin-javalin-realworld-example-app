@@ -56,4 +56,9 @@ class HttpUtil(port: Int) {
         val response = post<UserDTO>("/api/users/login", userDTO)
         headers["Authorization"] = "Token ${response.body.user.token}"
     }
+
+    fun registerUser(email: String, password: String, username: String) {
+        val userDTO = UserDTO(User(email = email, password = password, username = username))
+        val response = post<UserDTO>("/api/users", userDTO)
+    }
 }

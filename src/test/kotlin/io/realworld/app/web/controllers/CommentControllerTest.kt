@@ -7,15 +7,32 @@ import io.realworld.app.domain.Comment
 import io.realworld.app.domain.CommentDTO
 import io.realworld.app.domain.CommentsDTO
 import org.eclipse.jetty.http.HttpStatus
+import org.h2.tools.Server
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 
 class CommentControllerTest {
     private lateinit var app: Javalin
     private lateinit var http: HttpUtil
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun before() {
+            Server.createTcpServer().start()
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun after() {
+            Server.createTcpServer().stop()
+        }
+    }
 
     @Before
     fun init() {
