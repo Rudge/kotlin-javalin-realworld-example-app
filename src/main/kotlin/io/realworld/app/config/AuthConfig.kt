@@ -39,7 +39,7 @@ class AuthConfig(private val jwtProvider: JwtProvider) {
     }
 
     private fun getUsername(jwtToken: DecodedJWT?): String? {
-        return jwtToken?.getClaim("email")?.asString()
+        return jwtToken?.subject
     }
 
     private fun getUserRole(jwtToken: DecodedJWT?): Role? {
