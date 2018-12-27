@@ -1,5 +1,6 @@
 package io.realworld.app.config
 
+import com.auth0.jwt.interfaces.DecodedJWT
 import io.javalin.Context
 import io.javalin.Javalin
 import io.javalin.UnauthorizedResponse
@@ -16,8 +17,10 @@ private const val headerTokenName = "Authorization"
 class AuthConfig(private val jwtProvider: JwtProvider) {
     fun configure(app: Javalin) {
         app.accessManager { handler, ctx, permittedRoles ->
-            val userRole = getUserRole(ctx)
+            val jwtToken = getJwtTokenHeader(ctx)
+            val userRole = getUserRole(jwtToken) ?: Roles.ANYONE
             if (permittedRoles.contains(userRole)) {
+                ctx.attribute("email", getUsername(jwtToken))
                 handler.handle(ctx)
             } else {
                 throw UnauthorizedResponse()
@@ -25,18 +28,22 @@ class AuthConfig(private val jwtProvider: JwtProvider) {
         }
     }
 
-    private fun getUserRole(ctx: Context): Role {
-        val jwtToken = getTokenHeader(ctx)
-        if (jwtToken.isNullOrBlank()) {
-            return Roles.ANYONE
+    private fun getJwtTokenHeader(ctx: Context): DecodedJWT? {
+        val tokenHeader = ctx.header(headerTokenName)?.substringAfter("Token")?.trim()
+
+        if (tokenHeader != null) {
+            return jwtProvider.decodeJWT(tokenHeader)
         }
 
-        val userRole = jwtProvider.decodeJWT(jwtToken!!).getClaim("role").asString()
-
-        return Roles.valueOf(userRole)
+        return null
     }
 
-    private fun getTokenHeader(ctx: Context): String? {
-        return ctx.header(headerTokenName)?.substringAfter("Token")?.trim()
+    private fun getUsername(jwtToken: DecodedJWT?): String? {
+        return jwtToken?.getClaim("email")?.asString()
+    }
+
+    private fun getUserRole(jwtToken: DecodedJWT?): Role? {
+        val userRole = jwtToken?.getClaim("role")?.asString() ?: return null
+        return Roles.valueOf(userRole)
     }
 }
