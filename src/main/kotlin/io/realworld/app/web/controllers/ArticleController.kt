@@ -3,13 +3,14 @@ package io.realworld.app.web.controllers
 import io.javalin.Context
 import io.realworld.app.domain.Article
 import io.realworld.app.domain.ArticleDTO
+import io.realworld.app.domain.ArticleService
 import io.realworld.app.domain.ArticlesDTO
 import io.realworld.app.domain.User
 import java.util.*
 
-class ArticleController {
+class ArticleController(private val articleService: ArticleService) {
     //TODO TEMP
-    private val user = User("", "", "", "", "", null)
+    private val user = User(0, "", "", "", "", "", null)
     private val article = Article("1", "", "", "", listOf(""), Date(), Date(), false, 0, user)
 
     fun findBy(ctx: Context): ArticlesDTO {
@@ -18,7 +19,8 @@ class ArticleController {
         val favorited = ctx.queryParam("favorited")
         val limit = ctx.queryParam("limit")
         val offset = ctx.queryParam("offset")
-        val articles = listOf(article.copy(tagList = listOf(tag ?: ""), author = user.copy(username = author)))
+        //val articles = listOf(article.copy(tagList = listOf(tag ?: ""), author = user.copy(username = author)))
+        val articles = articleService.findBy(tag, author, favorited, limit?.toInt(), offset?.toInt())
         return ArticlesDTO(articles, articles.size)
     }
 
@@ -46,15 +48,14 @@ class ArticleController {
                 .getOrThrow()
         articleRequest.article.createdAt = Date()
         articleRequest.article.updatedAt = Date()
-        return ArticleDTO(article.copy(title = articleRequest.article.title, description = articleRequest.article
-                .description, body = articleRequest.article.body, tagList = articleRequest.article.tagList))
+        return articleService.create(ctx.attribute("email"), articleRequest.article)
     }
 
     fun update(ctx: Context): ArticleDTO {
         val slug = ctx.validatedPathParam("slug")
         val articleRequest = ctx.validatedBody<ArticleDTO>()
-                .check({ it.article.title?.isNotBlank() ?: true })
-                .check({ it.article.description?.isNotBlank() ?: true })
+                .check({ it.article.title.isNotBlank() })
+                .check({ it.article.description.isNotBlank() })
                 .check({ !it.article.body.isNullOrBlank() })
                 .getOrThrow()
         return ArticleDTO(article.copy(body = articleRequest.article.body))

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.Javalin
 import io.javalin.JavalinEvent
 import io.javalin.json.JavalinJackson
+import io.realworld.app.config.ModulesConfig.allModules
 import io.realworld.app.web.ErrorExceptionMapping
 import io.realworld.app.web.Routes
 import org.koin.core.KoinProperties
@@ -19,7 +20,7 @@ class AppConfig : KoinComponent {
     private val routes: Routes by inject()
 
     fun setup(): Javalin {
-        StandAloneContext.startKoin(listOf(ModulesConfig.myModule),
+        StandAloneContext.startKoin(allModules,
                 KoinProperties(true, true))
         configureMapper()
         val app = Javalin.create()
