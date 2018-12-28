@@ -6,6 +6,7 @@ import io.javalin.Javalin
 import io.javalin.UnauthorizedResponse
 import io.javalin.security.Role
 import io.realworld.app.utils.JwtProvider
+import java.util.*
 
 internal enum class Roles : Role {
     ANYONE, AUTHENTICATED
@@ -39,6 +40,9 @@ class AuthConfig(private val jwtProvider: JwtProvider) {
     }
 
     private fun getUsername(jwtToken: DecodedJWT?): String? {
+        jwtToken?.expiresAt?.takeIf { it.before(Date()) }?.apply {
+            throw UnauthorizedResponse("Token expired!")
+        }
         return jwtToken?.subject
     }
 
