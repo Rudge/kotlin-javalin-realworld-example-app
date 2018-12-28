@@ -22,10 +22,10 @@ data class Article(val slug: String? = null,
 class ArticleService(private val articleRepository: ArticleRepository,
                      private val userRepository: UserRepository) {
 
-    fun findBy(tag: String?, author: String?, favorited: String?, limit: Int?, offset: Int?):
+    fun findBy(tag: String?, author: String?, favorited: String?, limitParam: Int?, offsetParam: Int?):
             List<Article> {
-        val limit = limit ?: 0
-        val offset = offset ?: 0
+        val limit = limitParam ?: 0
+        val offset = offsetParam ?: 0
         return when {
             !tag.isNullOrBlank() -> articleRepository.findByTag(tag, limit, offset)
             !author.isNullOrBlank() -> articleRepository.findByAuthor(author, limit, offset)
