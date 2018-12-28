@@ -33,7 +33,7 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
 
     fun getCurrent(email: String?): User? {
         if (email.isNullOrBlank()) return null
-        val user = userRepository.findByEmail(email)
+        val user = userRepository.findByEmail(email!!)
         return user?.copy(token = generateJwtToken(user))
     }
 
