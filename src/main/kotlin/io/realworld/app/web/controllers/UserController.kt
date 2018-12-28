@@ -19,6 +19,6 @@ class UserController(private val userService: UserService) {
                 .check({ it.user?.bio?.isNotBlank() ?: true })
                 .check({ it.user?.image?.isNotBlank() ?: true })
                 .getOrThrow()
-        return UserDTO(userService.update(userRequest.user!!))
+        return UserDTO(userService.update(ctx.attribute("email"), userRequest.user!!))
     }
 }

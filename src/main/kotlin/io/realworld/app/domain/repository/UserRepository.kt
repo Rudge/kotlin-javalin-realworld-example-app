@@ -62,7 +62,7 @@ class UserRepository(private val dataSource: DataSource) {
             id = Users.insertAndGetId { row ->
                 row[Users.email] = user.email
                 row[Users.username] = user.username
-                row[Users.password] = user.password
+                row[Users.password] = user.password!!
                 row[Users.bio] = user.bio
                 row[Users.image] = user.image
             }.value
@@ -70,16 +70,22 @@ class UserRepository(private val dataSource: DataSource) {
         return id
     }
 
-    fun update(user: User): User? {
+    fun update(email: String, user: User): Boolean {
+        var success = false
         transaction(Database.connect(dataSource)) {
-            Users.update({ Users.id eq user.id }) { row ->
+            val rowsCount = Users.update({ Users.email eq email }) { row ->
                 row[Users.email] = user.email
-                row[Users.username] = user.username
-                row[Users.password] = user.password
-                row[Users.bio] = user.bio
-                row[Users.image] = user.image
+                if (user.username != null)
+                    row[Users.username] = user.username
+                if (user.password != null)
+                    row[Users.password] = user.password
+                if (user.bio != null)
+                    row[Users.bio] = user.bio
+                if (user.image != null)
+                    row[Users.image] = user.image
             }
+            success = rowsCount == 1
         }
-        return findById(user.id!!)
+        return success
     }
 }
