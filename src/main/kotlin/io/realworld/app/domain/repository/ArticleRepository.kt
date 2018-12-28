@@ -12,11 +12,12 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import org.joda.time.DateTime
 import javax.sql.DataSource
 
 private object Articles : LongIdTable() {
-    val slug: Column<String?> = varchar("slug", 100).nullable().uniqueIndex()
+    val slug: Column<String> = varchar("slug", 100).uniqueIndex()
     val title: Column<String> = varchar("title", 150)
     val description: Column<String> = varchar("description", 150)
     val body: Column<String> = varchar("body", 1000)
@@ -76,19 +77,20 @@ class ArticleRepository(private val dataSource: DataSource) {
         ).selectAll().map { Users.toDomain(it) }.firstOrNull()
     }
 
-    fun create(article: Article) {
+    fun create(article: Article): Article? {
         transaction(Database.connect(dataSource)) {
             Articles.insert { row ->
-                row[slug] = article.slug
+                row[slug] = article.slug!!
                 row[title] = article.title
                 row[description] = article.description
                 row[body] = article.body
-                row[createdAt] = DateTime(article.createdAt?.time)
-                row[updatedAt] = DateTime(article.updatedAt?.time)
+                row[createdAt] = DateTime()
+                row[updatedAt] = DateTime()
                 row[favorited] = article.favorited
                 row[author] = article.author?.id!!
             }
         }
+        return findBySlug(article.slug!!)
     }
 
     fun findAll(limit: Int, offset: Int): List<Article> {
@@ -102,5 +104,34 @@ class ArticleRepository(private val dataSource: DataSource) {
             }
         }
         return articles
+    }
+
+    fun findBySlug(slug: String): Article? {
+        var article: Article? = null
+        transaction(Database.connect(dataSource)) {
+            val query = Articles.select { Articles.slug eq slug }
+            article = query.map { row ->
+                Articles.toDomain(row).let { article ->
+                    article.copy(author = getAuthor())
+                }
+            }.firstOrNull()
+        }
+        return article
+    }
+
+    fun update(slug: String, article: Article): Article? {
+        transaction(Database.connect(dataSource)) {
+            Articles.update({ Articles.slug eq slug }) { row ->
+                row[Articles.slug] = article.slug!!
+                row[title] = article.title
+                row[description] = article.description
+                row[body] = article.body
+                row[updatedAt] = DateTime()
+                row[favorited] = article.favorited
+                if (article.author != null)
+                    row[author] = article.author.id!!
+            }
+        }
+        return findBySlug(article.slug!!)
     }
 }

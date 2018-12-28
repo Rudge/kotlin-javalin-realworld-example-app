@@ -36,29 +36,29 @@ class ArticleController(private val articleService: ArticleService) {
 
     fun get(ctx: Context) {
         val slug = ctx.validatedPathParam("slug")
-        ctx.json(ArticleDTO(article))
+                .check({ !it.isNullOrBlank() })
+                .getOrThrow()
+        ctx.json(ArticleDTO(articleService.findBySlug(slug)))
     }
 
     fun create(ctx: Context) {
         val articleRequest = ctx
                 .validatedBody<ArticleDTO>()
-                .check({ !it.article.title.isNullOrBlank() })
-                .check({ !it.article.description.isNullOrBlank() })
-                .check({ !it.article.body.isNullOrBlank() })
+                .check({ !it.article?.title.isNullOrBlank() })
+                .check({ !it.article?.description.isNullOrBlank() })
+                .check({ !it.article?.body.isNullOrBlank() })
                 .getOrThrow()
-        articleRequest.article.createdAt = Date()
-        articleRequest.article.updatedAt = Date()
-        ctx.json(ArticleDTO(articleService.create(ctx.attribute("email"), articleRequest.article)))
+        ctx.json(ArticleDTO(articleService.create(ctx.attribute("email"), articleRequest.article!!)))
     }
 
     fun update(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug")
+        val slug = ctx.validatedPathParam("slug").getOrThrow()
         val articleRequest = ctx.validatedBody<ArticleDTO>()
-                .check({ it.article.title.isNotBlank() })
-                .check({ it.article.description.isNotBlank() })
-                .check({ !it.article.body.isNullOrBlank() })
+                .check({ !it.article?.title.isNullOrBlank() })
+                .check({ !it.article?.description.isNullOrBlank() })
+                .check({ !it.article?.body.isNullOrBlank() })
                 .getOrThrow()
-        ctx.json(ArticleDTO(article.copy(body = articleRequest.article.body)))
+        ctx.json(ArticleDTO(articleService.update(slug, articleRequest.article!!)))
     }
 
     fun delete(ctx: Context) {

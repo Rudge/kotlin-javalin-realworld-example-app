@@ -1,10 +1,13 @@
 package io.realworld.app.domain
 
+import com.github.slugify.Slugify
+import io.javalin.HttpResponseException
 import io.realworld.app.domain.repository.ArticleRepository
 import io.realworld.app.domain.repository.UserRepository
+import org.eclipse.jetty.http.HttpStatus
 import java.util.*
 
-data class ArticleDTO(val article: Article)
+data class ArticleDTO(val article: Article?)
 
 data class ArticlesDTO(val articles: List<Article>, val articlesCount: Int)
 
@@ -13,10 +16,10 @@ data class Article(val slug: String? = null,
                    val description: String,
                    val body: String,
                    val tagList: List<String> = listOf(),
-                   var createdAt: Date? = null,
-                   var updatedAt: Date? = null,
+                   val createdAt: Date? = null,
+                   val updatedAt: Date? = null,
                    val favorited: Boolean = false,
-                   val favoritesCount: Long? = null,
+                   val favoritesCount: Long = 0,
                    val author: User? = null)
 
 class ArticleService(private val articleRepository: ArticleRepository,
@@ -39,7 +42,17 @@ class ArticleService(private val articleRepository: ArticleRepository,
             throw IllegalArgumentException("invalid user to create article")
         }
         val author = userRepository.findByEmail(email)
-        articleRepository.create(article.copy(author = author))
-        return article
+        val articleCreated = articleRepository.create(article.copy(slug = Slugify().slugify(article.title), author =
+        author))
+        articleCreated ?: throw HttpResponseException(HttpStatus.NOT_ACCEPTABLE_406, "Article not found to update.")
+        return articleCreated
+    }
+
+    fun findBySlug(slug: String): Article? {
+        return articleRepository.findBySlug(slug)
+    }
+
+    fun update(slug: String, article: Article): Article? {
+        return articleRepository.update(slug, article.copy(slug = Slugify().slugify(article.title)))
     }
 }
