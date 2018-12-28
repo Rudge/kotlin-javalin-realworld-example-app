@@ -70,10 +70,9 @@ class UserRepository(private val dataSource: DataSource) {
         return id
     }
 
-    fun update(email: String, user: User): Boolean {
-        var success = false
+    fun update(email: String, user: User): User? {
         transaction(Database.connect(dataSource)) {
-            val rowsCount = Users.update({ Users.email eq email }) { row ->
+            Users.update({ Users.email eq email }) { row ->
                 row[Users.email] = user.email
                 if (user.username != null)
                     row[Users.username] = user.username
@@ -84,8 +83,7 @@ class UserRepository(private val dataSource: DataSource) {
                 if (user.image != null)
                     row[Users.image] = user.image
             }
-            success = rowsCount == 1
         }
-        return success
+        return findByEmail(user.email)
     }
 }

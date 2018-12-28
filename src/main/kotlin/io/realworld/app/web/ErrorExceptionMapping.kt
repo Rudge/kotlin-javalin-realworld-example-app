@@ -17,7 +17,7 @@ object ErrorExceptionMapping {
             error["Unknow Error"] = listOf(e.message)
             ctx.json(error).status(HttpStatus.INTERNAL_SERVER_ERROR_500)
         }
-        app.exception(BadRequestResponse::class.java) { e, ctx ->
+        app.exception(BadRequestResponse::class.java) { _, ctx ->
             val error = ErrorResponse()
             error["body"] = "can't be empty"
             ctx.json(error).status(HttpStatus.UNPROCESSABLE_ENTITY_422)

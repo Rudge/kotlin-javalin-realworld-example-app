@@ -40,10 +40,8 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
     }
 
     fun update(email: String?, user: User): User? {
-        if (email == null || !userRepository.update(email, user)) {
-            throw HttpResponseException(HttpStatus.NOT_ACCEPTABLE_406, "User not found to update.")
-        }
-        return user
+        email ?: throw HttpResponseException(HttpStatus.NOT_ACCEPTABLE_406, "User not found to update.")
+        return userRepository.update(email, user)
     }
 
     private fun generateJwtToken(user: User): String? {
