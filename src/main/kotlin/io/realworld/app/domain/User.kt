@@ -6,7 +6,7 @@ import io.realworld.app.domain.repository.UserRepository
 import io.realworld.app.utils.Cipher
 import io.realworld.app.utils.JwtProvider
 
-data class UserDTO(val user: User)
+data class UserDTO(val user: User? = null)
 
 data class User(val id: Long? = null,
                 val email: String,
@@ -18,16 +18,30 @@ data class User(val id: Long? = null,
 
 class UserService(private val jwtProvider: JwtProvider, private val userRepository: UserRepository) {
     fun create(user: User): User {
-        userRepository.create(user.copy(password = Cipher.encrypt(user.password)))
-        return user
+        val id = userRepository.create(user.copy(password = Cipher.encrypt(user.password)))
+        return user.copy(id = id)
     }
 
     fun authenticate(user: User): User {
         val userFound = userRepository.findByEmail(user.email)
-        if (userFound != null && userFound.password == Cipher.encrypt(user.password)) {
-            return userFound.copy(token = jwtProvider.createJWT(userFound, Roles.AUTHENTICATED),
+        if (userFound?.password == Cipher.encrypt(user.password)) {
+            return userFound.copy(token = generateJwtToken(userFound),
                     password = "")
         }
         throw UnauthorizedResponse("email or password invalid!")
+    }
+
+    fun getCurrent(email: String?): User? {
+        if (email.isNullOrBlank()) return null
+        val user = userRepository.findByEmail(email)
+        return user?.copy(token = generateJwtToken(user))
+    }
+
+    fun update(user: User): User? {
+        return userRepository.update(user)
+    }
+
+    private fun generateJwtToken(user: User): String? {
+        return jwtProvider.createJWT(user, Roles.AUTHENTICATED)
     }
 }

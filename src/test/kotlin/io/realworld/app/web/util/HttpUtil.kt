@@ -54,11 +54,12 @@ class HttpUtil(port: Int) {
     fun loginAndSetTokenHeader(email: String, password: String) {
         val userDTO = UserDTO(User(email = email, password = password))
         val response = post<UserDTO>("/api/users/login", userDTO)
-        headers["Authorization"] = "Token ${response.body.user.token}"
+        headers["Authorization"] = "Token ${response.body.user?.token}"
     }
 
-    fun registerUser(email: String, password: String, username: String) {
+    fun registerUser(email: String, password: String, username: String): UserDTO {
         val userDTO = UserDTO(User(email = email, password = password, username = username))
         val response = post<UserDTO>("/api/users", userDTO)
+        return response.body
     }
 }

@@ -11,6 +11,7 @@ import org.h2.tools.Server
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.BeforeClass
@@ -61,21 +62,23 @@ class UserControllerTest {
         val response = http.get<UserDTO>("/api/user")
 
         assertEquals(response.status, HttpStatus.OK_200)
-        assertNotNull(response.body.user.username)
-        assertNotNull(response.body.user.password)
-        assertNotNull(response.body.user.token)
+        assertNotNull(response.body.user?.username)
+        assertNotNull(response.body.user?.password)
+        assertNotNull(response.body.user?.token)
     }
 
     @Test
     fun `update user data`() {
         val email = "email_valid@valid_email.com"
         val password = "Test"
-        http.registerUser(email, password, "username_Test")
+        val registerUser = http.registerUser(email, password, "username_Test").user
+        assertNotEquals(registerUser?.id, 0)
+
         http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
-        val userDTO = UserDTO(User(email = "update_user@update_test.com", password = "Test"))
+        val userDTO = UserDTO(User(id = registerUser?.id!!, email = "update_user@update_test.com", password = "Test"))
         val response = http.put<UserDTO>("/api/user", userDTO)
 
         assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.user.email, userDTO.user.email)
+        assertEquals(response.body.user?.email, userDTO.user?.email)
     }
 }

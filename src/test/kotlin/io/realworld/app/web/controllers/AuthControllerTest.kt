@@ -48,7 +48,7 @@ class AuthControllerTest {
     @Test
     fun `invalid login without pass valid body`() {
         val response = http.post<ErrorResponse>("/api/users/login",
-                "")
+                UserDTO())
 
         assertEquals(response.status, HttpStatus.UNPROCESSABLE_ENTITY_422)
         assertEquals(response.body["body"], "can't be empty")
@@ -63,8 +63,8 @@ class AuthControllerTest {
         val response = http.post<UserDTO>("/api/users/login", userDTO)
 
         assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.user.email, userDTO.user.email)
-        assertNotNull(response.body.user.token)
+        assertEquals(response.body.user?.email, userDTO.user?.email)
+        assertNotNull(response.body.user?.token)
     }
 
     @Test
@@ -74,7 +74,7 @@ class AuthControllerTest {
         val response = http.post<UserDTO>("/api/users", userDTO)
 
         assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.user.username, userDTO.user.username)
-        assertEquals(response.body.user.password, userDTO.user.password)
+        assertEquals(response.body.user?.username, userDTO.user?.username)
+        assertEquals(response.body.user?.password, userDTO.user?.password)
     }
 }

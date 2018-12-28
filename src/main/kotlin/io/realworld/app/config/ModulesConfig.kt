@@ -26,7 +26,7 @@ object ModulesConfig {
     }
     private val userModule = module {
         single { AuthController(get()) }
-        single { UserController() }
+        single { UserController(get()) }
         single { UserService(get(), get()) }
         single { UserRepository(get()) }
     }
