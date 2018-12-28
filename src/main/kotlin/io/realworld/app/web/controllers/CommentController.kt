@@ -12,18 +12,18 @@ class CommentController {
     private val user = User(0, "", "", "", "", "", null)
     private val comment = Comment(0, Date(), Date(), "", user)
 
-    fun add(ctx: Context): CommentDTO {
+    fun add(ctx: Context) {
         val slug = ctx.validatedPathParam("slug")
         val commentRequest = ctx
                 .validatedBody<CommentDTO>()
                 .check({ !it.comment.body.isNullOrBlank() })
                 .getOrThrow()
-        return CommentDTO(comment.copy(body = commentRequest.comment.body))
+        ctx.json(CommentDTO(comment.copy(body = commentRequest.comment.body)))
     }
 
-    fun get(ctx: Context): CommentsDTO {
+    fun get(ctx: Context) {
         val slug = ctx.validatedPathParam("slug")
-        return CommentsDTO(listOf(comment))
+        ctx.json(CommentsDTO(listOf(comment)))
     }
 
     fun delete(ctx: Context) {

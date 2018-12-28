@@ -5,8 +5,8 @@ import io.realworld.app.domain.TagDTO
 
 class TagController {
 
-    fun get(ctx: Context): TagDTO {
-        return TagDTO(listOf(" "))
+    fun get(ctx: Context) {
+        ctx.json(TagDTO(listOf(" ")))
     }
 
 }

@@ -6,20 +6,20 @@ import io.realworld.app.domain.UserService
 import io.realworld.app.ext.isEmailValid
 
 class AuthController(private val userService: UserService) {
-    fun login(ctx: Context): UserDTO {
+    fun login(ctx: Context) {
         val userRequest = ctx.validatedBody<UserDTO>()
                 .check({ it.user?.email?.isEmailValid() ?: true })
                 .check({ !it.user?.password.isNullOrBlank() })
                 .getOrThrow()
-        return UserDTO(userService.authenticate(userRequest.user!!))
+        ctx.json(UserDTO(userService.authenticate(userRequest.user!!)))
     }
 
-    fun register(ctx: Context): UserDTO {
+    fun register(ctx: Context) {
         val userRequest = ctx.validatedBody<UserDTO>()
                 .check({ it.user?.email?.isEmailValid() ?: true })
                 .check({ !it.user?.password.isNullOrBlank() })
                 .check({ !it.user?.username.isNullOrBlank() })
                 .getOrThrow()
-        return UserDTO(userService.create(userRequest.user!!))
+        ctx.json(UserDTO(userService.create(userRequest.user!!)))
     }
 }

@@ -34,12 +34,12 @@ class ArticleService(private val articleRepository: ArticleRepository,
         }
     }
 
-    fun create(email: String?, article: Article): ArticleDTO {
+    fun create(email: String?, article: Article): Article {
         if (email == null) {
             throw IllegalArgumentException("invalid user to create article")
         }
         val author = userRepository.findByEmail(email)
         articleRepository.create(article.copy(author = author))
-        return ArticleDTO(article)
+        return article
     }
 }

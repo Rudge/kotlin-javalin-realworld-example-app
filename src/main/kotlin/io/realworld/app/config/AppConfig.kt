@@ -7,7 +7,7 @@ import io.javalin.JavalinEvent
 import io.javalin.json.JavalinJackson
 import io.realworld.app.config.ModulesConfig.allModules
 import io.realworld.app.web.ErrorExceptionMapping
-import io.realworld.app.web.Routes
+import io.realworld.app.web.Router
 import org.koin.core.KoinProperties
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.StandAloneContext
@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat
 
 class AppConfig : KoinComponent {
     private val authConfig: AuthConfig by inject()
-    private val routes: Routes by inject()
+    private val router: Router by inject()
 
     fun setup(): Javalin {
         StandAloneContext.startKoin(allModules,
@@ -28,7 +28,7 @@ class AppConfig : KoinComponent {
                 .contextPath(getProperty("context"))
                 .event(JavalinEvent.SERVER_STOPPING) { StandAloneContext.stopKoin() }
         authConfig.configure(app)
-        routes.register(app)
+        router.register(app)
         ErrorExceptionMapping.register(app)
         return app.port(getProperty("server_port"))
     }

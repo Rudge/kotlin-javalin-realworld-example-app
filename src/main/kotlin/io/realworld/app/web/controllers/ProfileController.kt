@@ -8,18 +8,18 @@ class ProfileController {
     //TODO TEMP
     private val profile = Profile("", "", "", true)
 
-    fun get(ctx: Context): ProfileDTO {
+    fun get(ctx: Context) {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return ProfileDTO(profile.copy(username = username))
+        ctx.json(ProfileDTO(profile.copy(username = username)))
     }
 
-    fun follow(ctx: Context): ProfileDTO {
+    fun follow(ctx: Context) {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return ProfileDTO(profile.copy(username = username))
+        ctx.json(ProfileDTO(profile.copy(username = username)))
     }
 
-    fun unfollow(ctx: Context): ProfileDTO {
+    fun unfollow(ctx: Context) {
         val username = ctx.validatedPathParam("username").getOrThrow()
-        return ProfileDTO(profile.copy(username = username, following = false))
+        ctx.json(ProfileDTO(profile.copy(username = username, following = false)))
     }
 }

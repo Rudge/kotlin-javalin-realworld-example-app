@@ -6,11 +6,11 @@ import io.realworld.app.domain.UserService
 import io.realworld.app.ext.isEmailValid
 
 class UserController(private val userService: UserService) {
-    fun getCurrent(ctx: Context): UserDTO {
-        return UserDTO(userService.getCurrent(ctx.attribute("email")))
+    fun getCurrent(ctx: Context) {
+        ctx.json(UserDTO(userService.getCurrent(ctx.attribute("email"))))
     }
 
-    fun update(ctx: Context): UserDTO {
+    fun update(ctx: Context) {
         val userRequest = ctx
                 .validatedBody<UserDTO>()
                 .check({ it.user?.email?.isEmailValid() ?: true })
@@ -19,6 +19,6 @@ class UserController(private val userService: UserService) {
                 .check({ it.user?.bio?.isNotBlank() ?: true })
                 .check({ it.user?.image?.isNotBlank() ?: true })
                 .getOrThrow()
-        return UserDTO(userService.update(ctx.attribute("email"), userRequest.user!!))
+        ctx.json(UserDTO(userService.update(ctx.attribute("email"), userRequest.user!!)))
     }
 }

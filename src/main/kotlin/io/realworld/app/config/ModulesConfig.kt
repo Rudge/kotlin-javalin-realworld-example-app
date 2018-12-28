@@ -5,7 +5,7 @@ import io.realworld.app.domain.UserService
 import io.realworld.app.domain.repository.ArticleRepository
 import io.realworld.app.domain.repository.UserRepository
 import io.realworld.app.utils.JwtProvider
-import io.realworld.app.web.Routes
+import io.realworld.app.web.Router
 import io.realworld.app.web.controllers.ArticleController
 import io.realworld.app.web.controllers.AuthController
 import io.realworld.app.web.controllers.CommentController
@@ -22,7 +22,7 @@ object ModulesConfig {
         single {
             DbConfig(getProperty("jdbc.url"), getProperty("db.username"), getProperty("db.password")).getDataSource()
         }
-        single { Routes(get(), get(), get(), get(), get(), get()) }
+        single { Router(get(), get(), get(), get(), get(), get()) }
     }
     private val userModule = module {
         single { AuthController(get()) }
