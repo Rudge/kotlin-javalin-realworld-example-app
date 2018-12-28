@@ -47,7 +47,10 @@ class CommentControllerTest {
 
     @Test
     fun `add comment for article by slug`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "add_comment@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val slug = "slugTest"
         val comment = Comment(body = "Very carefully.")
@@ -69,7 +72,10 @@ class CommentControllerTest {
 
     @Test
     fun `delete comment for article by slug`() {
-        http.loginAndSetTokenHeader("email_valid@valid_email.com", "Test")
+        val email = "delete_comment@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        http.loginAndSetTokenHeader(email, password)
 
         val slug = "slugTest"
         val commentId = "1"
