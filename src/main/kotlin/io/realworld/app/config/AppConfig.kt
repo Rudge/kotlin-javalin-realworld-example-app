@@ -22,15 +22,17 @@ class AppConfig : KoinComponent {
     fun setup(): Javalin {
         StandAloneContext.startKoin(allModules,
                 KoinProperties(true, true))
-        configureMapper()
-        val app = Javalin.create()
-                .enableCorsForAllOrigins()
-                .contextPath(getProperty("context"))
-                .event(JavalinEvent.SERVER_STOPPING) { StandAloneContext.stopKoin() }
-        authConfig.configure(app)
-        router.register(app)
-        ErrorExceptionMapping.register(app)
-        return app.port(getProperty("server_port"))
+        return Javalin.create()
+                .also { app ->
+                    configureMapper()
+                    app.enableCorsForAllOrigins()
+                            .contextPath(getProperty("context"))
+                            .event(JavalinEvent.SERVER_STOPPING) { StandAloneContext.stopKoin() }
+                    authConfig.configure(app)
+                    router.register(app)
+                    ErrorExceptionMapping.register(app)
+                    app.port(getProperty("server_port"))
+                }
     }
 
     private fun configureMapper() {

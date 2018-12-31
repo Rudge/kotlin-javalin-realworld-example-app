@@ -1,77 +1,84 @@
 package io.realworld.app.web.controllers
 
 import io.javalin.Context
-import io.realworld.app.domain.Article
 import io.realworld.app.domain.ArticleDTO
 import io.realworld.app.domain.ArticleService
 import io.realworld.app.domain.ArticlesDTO
-import io.realworld.app.domain.User
-import java.util.*
 
 class ArticleController(private val articleService: ArticleService) {
-    //TODO TEMP
-    private val user = User(0, "", "", "", "", "", null)
-    private val article = Article("1", "", "", "", listOf(""), Date(), Date(), false, 0, user)
-
     fun findBy(ctx: Context) {
         val tag = ctx.queryParam("tag")
         val author = ctx.queryParam("author")
         val favorited = ctx.queryParam("favorited")
-        val limit = ctx.queryParam("limit")
-        val offset = ctx.queryParam("offset")
-        //val articles = listOf(article.copy(tagList = listOf(tag ?: ""), author = user.copy(username = author)))
-        val articles = articleService.findBy(tag, author, favorited, limit?.toInt(), offset?.toInt())
-        ctx.json(ArticlesDTO(articles, articles.size))
+        val limit = ctx.queryParam("limit") ?: "20"
+        val offset = ctx.queryParam("offset") ?: "0"
+        articleService.findBy(tag, author, favorited, limit.toInt(), offset.toInt()).also { articles ->
+            ctx.json(ArticlesDTO(articles, articles.size))
+        }
     }
 
     fun feed(ctx: Context) {
-        val tag = ctx.queryParam("tag")
-        val author = ctx.queryParam("author")
-        val favorited = ctx.queryParam("favorited")
-        val limit = ctx.queryParam("limit")
-        val offset = ctx.queryParam("offset")
-        val articles = listOf(article)
-        ctx.json(ArticlesDTO(articles, articles.size))
+        val limit = ctx.queryParam("limit") ?: "20"
+        val offset = ctx.queryParam("offset") ?: "0"
+        articleService.findFeed(limit.toInt(), offset.toInt()).also { articles ->
+            ctx.json(ArticlesDTO(articles, articles.size))
+        }
     }
 
     fun get(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug")
-                .check({ !it.isNullOrBlank() })
-                .getOrThrow()
-        ctx.json(ArticleDTO(articleService.findBySlug(slug)))
+        ctx.validatedPathParam("slug")
+                .check({ it.isNotBlank() })
+                .getOrThrow().also { slug ->
+                    articleService.findBySlug(slug).apply {
+                        ctx.json(ArticleDTO(this))
+                    }
+                }
     }
 
     fun create(ctx: Context) {
-        val articleRequest = ctx
-                .validatedBody<ArticleDTO>()
+        ctx.validatedBody<ArticleDTO>()
                 .check({ !it.article?.title.isNullOrBlank() })
                 .check({ !it.article?.description.isNullOrBlank() })
                 .check({ !it.article?.body.isNullOrBlank() })
-                .getOrThrow()
-        ctx.json(ArticleDTO(articleService.create(ctx.attribute("email"), articleRequest.article!!)))
+                .getOrThrow().article?.also { article ->
+            articleService.create(ctx.attribute("email"), article).apply {
+                ctx.json(ArticleDTO(this))
+            }
+        }
     }
 
     fun update(ctx: Context) {
         val slug = ctx.validatedPathParam("slug").getOrThrow()
-        val articleRequest = ctx.validatedBody<ArticleDTO>()
+        ctx.validatedBody<ArticleDTO>()
                 .check({ !it.article?.title.isNullOrBlank() })
                 .check({ !it.article?.description.isNullOrBlank() })
                 .check({ !it.article?.body.isNullOrBlank() })
-                .getOrThrow()
-        ctx.json(ArticleDTO(articleService.update(slug, articleRequest.article!!)))
+                .getOrThrow().article?.also { article ->
+            articleService.update(slug, article).apply {
+                ctx.json(ArticleDTO(this))
+            }
+        }
     }
 
     fun delete(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug")
+        ctx.validatedPathParam("slug").getOrThrow().also { slug ->
+            articleService.delete(slug)
+        }
     }
 
     fun favorite(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug")
-        ctx.json(ArticleDTO(article.copy(favorited = true, favoritesCount = 1)))
+        ctx.validatedPathParam("slug").getOrThrow().also { slug ->
+            articleService.favorite(slug).apply {
+                ctx.json(ArticleDTO(this))
+            }
+        }
     }
 
     fun unfavorite(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug")
-        ctx.json(ArticleDTO(article))
+        ctx.validatedPathParam("slug").getOrThrow().also { slug ->
+            articleService.unfavorite(slug).apply {
+                ctx.json(ArticleDTO(this))
+            }
+        }
     }
 }

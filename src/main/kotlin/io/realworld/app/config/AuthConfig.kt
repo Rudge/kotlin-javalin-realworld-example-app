@@ -10,7 +10,6 @@ import java.util.*
 
 internal enum class Roles : Role {
     ANYONE, AUTHENTICATED
-
 }
 
 private const val headerTokenName = "Authorization"
@@ -20,26 +19,20 @@ class AuthConfig(private val jwtProvider: JwtProvider) {
         app.accessManager { handler, ctx, permittedRoles ->
             val jwtToken = getJwtTokenHeader(ctx)
             val userRole = getUserRole(jwtToken) ?: Roles.ANYONE
-            if (permittedRoles.contains(userRole)) {
-                ctx.attribute("email", getUsername(jwtToken))
-                handler.handle(ctx)
-            } else {
-                throw UnauthorizedResponse()
-            }
+            permittedRoles.takeIf { !it.contains(userRole) }?.apply { throw UnauthorizedResponse() }
+            ctx.attribute("email", getEmail(jwtToken))
+            handler.handle(ctx)
         }
     }
 
     private fun getJwtTokenHeader(ctx: Context): DecodedJWT? {
         val tokenHeader = ctx.header(headerTokenName)?.substringAfter("Token")?.trim()
+                ?: return null
 
-        if (tokenHeader != null) {
-            return jwtProvider.decodeJWT(tokenHeader)
-        }
-
-        return null
+        return jwtProvider.decodeJWT(tokenHeader)
     }
 
-    private fun getUsername(jwtToken: DecodedJWT?): String? {
+    private fun getEmail(jwtToken: DecodedJWT?): String? {
         jwtToken?.expiresAt?.takeIf { it.before(Date()) }?.apply {
             throw UnauthorizedResponse("Token expired!")
         }

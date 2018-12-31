@@ -8,7 +8,7 @@ import io.javalin.UnauthorizedResponse
 import org.eclipse.jetty.http.HttpStatus
 
 @JsonRootName("errors")
-class ErrorResponse : HashMap<String, Any>()
+internal class ErrorResponse : HashMap<String, Any>()
 
 object ErrorExceptionMapping {
     fun register(app: Javalin) {

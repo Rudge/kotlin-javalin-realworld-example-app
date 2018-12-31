@@ -8,11 +8,12 @@ class DbConfig(jdbcUrl: String, username: String, password: String) {
     private val dataSource: DataSource
 
     init {
-        val config = HikariConfig()
-        config.jdbcUrl = jdbcUrl
-        config.username = username
-        config.password = password
-        dataSource = HikariDataSource(config)
+        dataSource = HikariConfig().let { config ->
+            config.jdbcUrl = jdbcUrl
+            config.username = username
+            config.password = password
+            HikariDataSource(config)
+        }
     }
 
     fun getDataSource(): DataSource {
