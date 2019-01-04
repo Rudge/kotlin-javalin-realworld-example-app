@@ -28,17 +28,15 @@ class ArticleService(private val articleRepository: ArticleRepository,
     fun findBy(tag: String?, author: String?, favorited: String?, limit: Int, offset: Int):
             List<Article> {
         return when {
-            !tag.isNullOrBlank() -> articleRepository.findByTag(tag, limit, offset)
-            !author.isNullOrBlank() -> articleRepository.findByAuthor(author, limit, offset)
-            !favorited.isNullOrBlank() -> articleRepository.findByFavorited(favorited, limit, offset)
+            !tag.isNullOrBlank() -> articleRepository.findByTag(tag!!, limit, offset)
+            !author.isNullOrBlank() -> articleRepository.findByAuthor(author!!, limit, offset)
+            !favorited.isNullOrBlank() -> articleRepository.findByFavorited(favorited!!, limit, offset)
             else -> articleRepository.findAll(limit, offset)
         }
     }
 
     fun create(email: String?, article: Article): Article {
-        if (email == null) {
-            throw IllegalArgumentException("invalid user to create article")
-        }
+        email ?: throw IllegalArgumentException("invalid user to create article")
         val author = userRepository.findByEmail(email)
         val articleCreated = articleRepository.create(article.copy(slug = Slugify().slugify(article.title), author =
         author))
@@ -59,14 +57,14 @@ class ArticleService(private val articleRepository: ArticleRepository,
     }
 
     fun favorite(slug: String): Article {
-        return Article("", "", "", "", favorited = true, favoritesCount = 1)
+        return articleRepository.favorite(slug)
     }
 
     fun unfavorite(slug: String): Article {
-        return Article("", "", "", "")
+        return articleRepository.unfavorite(slug)
     }
 
     fun delete(slug: String): Article {
-        return Article("", "", "", "")
+        return articleRepository.delete(slug)
     }
 }

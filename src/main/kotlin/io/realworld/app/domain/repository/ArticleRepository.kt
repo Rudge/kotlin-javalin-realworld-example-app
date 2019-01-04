@@ -2,12 +2,14 @@ package io.realworld.app.domain.repository
 
 import io.realworld.app.domain.Article
 import io.realworld.app.domain.User
-import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -16,18 +18,16 @@ import org.jetbrains.exposed.sql.update
 import org.joda.time.DateTime
 import javax.sql.DataSource
 
-private object Articles : LongIdTable() {
-    val slug: Column<String> = varchar("slug", 100).uniqueIndex()
+private object Articles : Table() {
+    val slug: Column<String> = varchar("slug", 100).primaryKey()
     val title: Column<String> = varchar("title", 150)
     val description: Column<String> = varchar("description", 150)
     val body: Column<String> = varchar("body", 1000)
-    //val tagList: List<String> = listOf(),
     val createdAt: Column<DateTime> = date("created_at")
     val updatedAt: Column<DateTime> = date("updated_at")
-    val favorited: Column<Boolean> = bool("favorited")
     val author: Column<Long> = long("author")
 
-    fun toDomain(row: ResultRow): Article {
+    fun toDomain(row: ResultRow, author: User?): Article {
         return Article(
                 slug = row[slug],
                 title = row[title],
@@ -35,7 +35,7 @@ private object Articles : LongIdTable() {
                 body = row[body],
                 createdAt = row[createdAt].toDate(),
                 updatedAt = row[updatedAt].toDate(),
-                favorited = row[favorited]
+                author = author
         )
     }
 }
@@ -48,33 +48,27 @@ class ArticleRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun findByTag(tag: String?, limit: Int, offset: Int): List<Article> {
-        return emptyList()
-    }
-
-    fun findByAuthor(author: String?, limit: Int, offset: Int): List<Article> {
-        return emptyList()
-    }
-
-    fun findByFavorited(favorited: String?, limit: Int, offset: Int): List<Article> {
+    private fun findWithConditional(where: Op<Boolean>, limit: Int, offset: Int): List<Article> {
         var articles = emptyList<Article>()
         transaction(Database.connect(dataSource)) {
-            val query = Articles.select { Articles.favorited eq true }.limit(limit, offset)
-            articles = query.map { row ->
-                Articles.toDomain(row).let { article ->
-                    article.copy(author = getAuthor())
-                }
-            }
+            articles = Articles.join(Users, JoinType.INNER,
+                    additionalConstraint = { Articles.author eq Users.id })
+                    .select { where }
+                    .limit(limit, offset)
+                    .orderBy(Articles.createdAt, true)
+                    .map { row ->
+                        Articles.toDomain(row, Users.toDomain(row))
+                    }
         }
         return articles
     }
 
-    private fun getAuthor(): User? {
-        return Articles.join(Users, JoinType.INNER,
-                additionalConstraint = {
-                    Articles.author eq Users.id
-                }
-        ).selectAll().map { Users.toDomain(it) }.firstOrNull()
+    fun findByTag(tag: String, limit: Int, offset: Int): List<Article> {
+        return emptyList()
+    }
+
+    fun findByFavorited(favorited: String, limit: Int, offset: Int): List<Article> {
+        return findWithConditional((Articles.slug eq favorited), limit, offset)
     }
 
     fun create(article: Article): Article? {
@@ -86,7 +80,6 @@ class ArticleRepository(private val dataSource: DataSource) {
                 row[body] = article.body
                 row[createdAt] = DateTime()
                 row[updatedAt] = DateTime()
-                row[favorited] = article.favorited
                 row[author] = article.author?.id!!
             }
         }
@@ -96,27 +89,24 @@ class ArticleRepository(private val dataSource: DataSource) {
     fun findAll(limit: Int, offset: Int): List<Article> {
         var articles = emptyList<Article>()
         transaction(Database.connect(dataSource)) {
-            val query = Articles.selectAll().limit(limit, offset)
-            articles = query.map { row ->
-                Articles.toDomain(row).let { article ->
-                    article.copy(author = getAuthor())
-                }
-            }
+            val query = Articles.join(Users, JoinType.INNER,
+                    additionalConstraint = { Articles.author eq Users.id })
+                    .selectAll()
+                    .limit(limit, offset)
+                    .orderBy(Articles.createdAt, true)
+                    .map { row ->
+                        Articles.toDomain(row, Users.toDomain(row))
+                    }
         }
         return articles
     }
 
     fun findBySlug(slug: String): Article? {
-        var article: Article? = null
-        transaction(Database.connect(dataSource)) {
-            val query = Articles.select { Articles.slug eq slug }
-            article = query.map { row ->
-                Articles.toDomain(row).let { article ->
-                    article.copy(author = getAuthor())
-                }
-            }.firstOrNull()
-        }
-        return article
+        return findWithConditional((Articles.slug eq slug), 1, 0).firstOrNull()
+    }
+
+    fun findByAuthor(author: String, limit: Int, offset: Int): List<Article> {
+        return findWithConditional((Users.username eq author), limit, offset)
     }
 
     fun update(slug: String, article: Article): Article? {
@@ -127,11 +117,31 @@ class ArticleRepository(private val dataSource: DataSource) {
                 row[description] = article.description
                 row[body] = article.body
                 row[updatedAt] = DateTime()
-                row[favorited] = article.favorited
                 if (article.author != null)
                     row[author] = article.author.id!!
             }
         }
         return findBySlug(article.slug!!)
+    }
+
+    fun favorite(slug: String): Article {
+        transaction(Database.connect(dataSource)) {
+
+        }
+        return Article("", "", "", "", favorited = true, favoritesCount = 1)
+    }
+
+    fun unfavorite(slug: String): Article {
+        transaction(Database.connect(dataSource)) {
+
+        }
+        return Article("", "", "", "")
+    }
+
+    fun delete(slug: String): Article {
+        transaction(Database.connect(dataSource)) {
+
+        }
+        return Article("", "", "", "")
     }
 }

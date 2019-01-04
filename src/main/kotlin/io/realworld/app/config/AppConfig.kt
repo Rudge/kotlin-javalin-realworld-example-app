@@ -24,7 +24,7 @@ class AppConfig : KoinComponent {
                 KoinProperties(true, true))
         return Javalin.create()
                 .also { app ->
-                    configureMapper()
+                    this.configureMapper()
                     app.enableCorsForAllOrigins()
                             .contextPath(getProperty("context"))
                             .event(JavalinEvent.SERVER_STOPPING) { StandAloneContext.stopKoin() }

@@ -71,7 +71,7 @@ class ArticleControllerTest {
 
     @Test
     fun `get all articles by author`() {
-        val author = "teste"
+        val author = "user_name_test"
         val response = http.get<ArticlesDTO>("/api/articles", mapOf("author" to author))
 
         assertEquals(response.status, HttpStatus.OK_200)
@@ -86,7 +86,7 @@ class ArticleControllerTest {
         val password = "Test"
         http.registerUser(email, password, "user_name_test")
         http.loginAndSetTokenHeader(email, password)
-        val author = "teste"
+        val author = "user_name_test"
         val response = http.get<ArticlesDTO>("/api/articles", mapOf("author" to author))
 
         assertEquals(response.status, HttpStatus.OK_200)
