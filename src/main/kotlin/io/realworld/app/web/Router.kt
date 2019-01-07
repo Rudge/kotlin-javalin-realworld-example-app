@@ -9,15 +9,13 @@ import io.javalin.apibuilder.ApiBuilder.put
 import io.javalin.security.SecurityUtil.roles
 import io.realworld.app.config.Roles
 import io.realworld.app.web.controllers.ArticleController
-import io.realworld.app.web.controllers.AuthController
 import io.realworld.app.web.controllers.CommentController
 import io.realworld.app.web.controllers.ProfileController
 import io.realworld.app.web.controllers.TagController
 import io.realworld.app.web.controllers.UserController
 import org.koin.standalone.KoinComponent
 
-class Router(private val authController: AuthController,
-             private val userController: UserController,
+class Router(private val userController: UserController,
              private val profileController: ProfileController,
              private val articleController: ArticleController,
              private val commentController: CommentController,
@@ -27,8 +25,8 @@ class Router(private val authController: AuthController,
         val rolesOptionalAuthenticated = roles(Roles.ANYONE, Roles.AUTHENTICATED)
         app.routes {
             path("users") {
-                post(authController::register, roles(Roles.ANYONE))
-                post("login", authController::login, roles(Roles.ANYONE))
+                post(userController::register, roles(Roles.ANYONE))
+                post("login", userController::login, roles(Roles.ANYONE))
             }
             path("user") {
                 get(userController::getCurrent, roles(Roles.AUTHENTICATED))

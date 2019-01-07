@@ -9,33 +9,19 @@ import io.realworld.app.web.ErrorResponse
 import org.eclipse.jetty.http.HttpStatus
 import org.h2.tools.Server
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 
 class UserControllerTest {
     private lateinit var app: Javalin
     private lateinit var http: HttpUtil
 
-    companion object {
-        @BeforeClass
-        @JvmStatic
-        fun before() {
-            Server.createTcpServer().start()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun after() {
-            Server.createTcpServer().stop()
-        }
-    }
-
     @Before
     fun init() {
+        Server.createTcpServer().start()
         app = AppConfig().setup().start()
         http = HttpUtil(app.port())
     }
@@ -43,13 +29,47 @@ class UserControllerTest {
     @After
     fun cleanTokenHeader() {
         app.stop()
+        Server.createTcpServer().stop()
+    }
+
+    @Test
+    fun `invalid login without pass valid body`() {
+        val response = http.post<ErrorResponse>("/api/users/login",
+                UserDTO())
+
+        assertEquals(response.status, HttpStatus.UNPROCESSABLE_ENTITY_422)
+        assertTrue(response.body.errors["body"]!!.contains("can't be empty or invalid"))
+    }
+
+    @Test
+    fun `success login with email and password`() {
+        val email = "success_login@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "user_name_test")
+        val userDTO = UserDTO(User(email = email, password = password))
+        val response = http.post<UserDTO>("/api/users/login", userDTO)
+
+        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(response.body.user?.email, userDTO.user?.email)
+        assertNotNull(response.body.user?.token)
+    }
+
+    @Test
+    fun `success register user`() {
+        val userDTO = UserDTO(User(email = "success_register@valid_email.com", password = "Test", username =
+        "username_test"))
+        val response = http.post<UserDTO>("/api/users", userDTO)
+
+        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(response.body.user?.username, userDTO.user?.username)
+        assertEquals(response.body.user?.password, userDTO.user?.password)
     }
 
     @Test
     fun `invalid get current user without token`() {
         val response = http.get<ErrorResponse>("/api/user")
 
-        assertEquals(response.status, HttpStatus.UNAUTHORIZED_401)
+        assertEquals(response.status, HttpStatus.FORBIDDEN_403)
     }
 
     @Test
