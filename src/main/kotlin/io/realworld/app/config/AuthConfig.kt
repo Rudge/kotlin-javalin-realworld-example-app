@@ -2,11 +2,10 @@ package io.realworld.app.config
 
 import com.auth0.jwt.interfaces.DecodedJWT
 import io.javalin.Context
+import io.javalin.ForbiddenResponse
 import io.javalin.Javalin
-import io.javalin.UnauthorizedResponse
 import io.javalin.security.Role
 import io.realworld.app.utils.JwtProvider
-import java.util.*
 
 internal enum class Roles : Role {
     ANYONE, AUTHENTICATED
@@ -19,7 +18,7 @@ class AuthConfig(private val jwtProvider: JwtProvider) {
         app.accessManager { handler, ctx, permittedRoles ->
             val jwtToken = getJwtTokenHeader(ctx)
             val userRole = getUserRole(jwtToken) ?: Roles.ANYONE
-            permittedRoles.takeIf { !it.contains(userRole) }?.apply { throw UnauthorizedResponse() }
+            permittedRoles.takeIf { !it.contains(userRole) }?.apply { throw ForbiddenResponse() }
             ctx.attribute("email", getEmail(jwtToken))
             handler.handle(ctx)
         }
@@ -33,9 +32,6 @@ class AuthConfig(private val jwtProvider: JwtProvider) {
     }
 
     private fun getEmail(jwtToken: DecodedJWT?): String? {
-        jwtToken?.expiresAt?.takeIf { it.before(Date()) }?.apply {
-            throw UnauthorizedResponse("Token expired!")
-        }
         return jwtToken?.subject
     }
 
