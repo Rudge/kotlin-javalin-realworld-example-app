@@ -2,6 +2,7 @@ package io.realworld.app.domain
 
 import com.github.slugify.Slugify
 import io.javalin.HttpResponseException
+import io.javalin.NotFoundResponse
 import io.realworld.app.domain.repository.ArticleRepository
 import io.realworld.app.domain.repository.UserRepository
 import org.eclipse.jetty.http.HttpStatus
@@ -45,7 +46,7 @@ class ArticleService(private val articleRepository: ArticleRepository,
     }
 
     fun findBySlug(slug: String): Article? {
-        return articleRepository.findBySlug(slug)
+        return articleRepository.findBySlug(slug) ?: throw NotFoundResponse()
     }
 
     fun update(slug: String, article: Article): Article? {
