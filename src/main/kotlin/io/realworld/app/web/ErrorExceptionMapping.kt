@@ -1,35 +1,54 @@
 package io.realworld.app.web
 
-import com.fasterxml.jackson.annotation.JsonRootName
+import com.auth0.jwt.exceptions.JWTVerificationException
 import io.javalin.BadRequestResponse
+import io.javalin.ForbiddenResponse
 import io.javalin.HttpResponseException
 import io.javalin.Javalin
+import io.javalin.NotFoundResponse
 import io.javalin.UnauthorizedResponse
 import org.eclipse.jetty.http.HttpStatus
+import org.slf4j.LoggerFactory
 
-@JsonRootName("errors")
-internal class ErrorResponse : HashMap<String, Any>()
+internal data class ErrorResponse(val errors: Map<String, List<String?>>)
 
 object ErrorExceptionMapping {
+    private val LOG = LoggerFactory.getLogger(ErrorExceptionMapping::class.java)
+
     fun register(app: Javalin) {
         app.exception(Exception::class.java) { e, ctx ->
-            val error = ErrorResponse()
-            error["Unknow Error"] = listOf(e.message)
+            LOG.error("Exception occurred for req -> ${ctx.url()}", e)
+            val error = ErrorResponse(mapOf("Unknow Error" to listOf(e.message ?: "Error occurred!")))
             ctx.json(error).status(HttpStatus.INTERNAL_SERVER_ERROR_500)
         }
-        app.exception(BadRequestResponse::class.java) { _, ctx ->
-            val error = ErrorResponse()
-            error["body"] = "can't be empty"
+        app.exception(BadRequestResponse::class.java) { e, ctx ->
+            LOG.warn("BadRequestResponse occurred for req -> ${ctx.url()}")
+            val error = ErrorResponse(mapOf("body" to listOf(e.message ?: "can't be empty")))
             ctx.json(error).status(HttpStatus.UNPROCESSABLE_ENTITY_422)
         }
         app.exception(UnauthorizedResponse::class.java) { e, ctx ->
-            val error = ErrorResponse()
-            error["login"] = e.message ?: "User not authorized!"
+            LOG.warn("UnauthorizedResponse occurred for req -> ${ctx.url()}")
+            val error = ErrorResponse(mapOf("login" to listOf("User not authenticated!")))
             ctx.json(error).status(HttpStatus.UNAUTHORIZED_401)
         }
+        app.exception(ForbiddenResponse::class.java) { e, ctx ->
+            LOG.warn("ForbiddenResponse occurred for req -> ${ctx.url()}")
+            val error = ErrorResponse(mapOf("login" to listOf("User doesn't have permissions to perform the action!")))
+            ctx.json(error).status(HttpStatus.FORBIDDEN_403)
+        }
+        app.exception(JWTVerificationException::class.java) { e, ctx ->
+            LOG.error("JWTVerificationException occurred for req -> ${ctx.url()}", e)
+            val error = ErrorResponse(mapOf("token" to listOf(e.message ?: "Invalid JWT token!")))
+            ctx.json(error).status(HttpStatus.UNAUTHORIZED_401)
+        }
+        app.exception(NotFoundResponse::class.java) { e, ctx ->
+            LOG.warn("NotFoundResponse occurred for req -> ${ctx.url()}")
+            val error = ErrorResponse(mapOf("body" to listOf("Resource can't be found to fulfill the request.")))
+            ctx.json(error).status(HttpStatus.NOT_FOUND_404)
+        }
         app.exception(HttpResponseException::class.java) { e, ctx ->
-            val error = ErrorResponse()
-            error["body"] = listOf(e.message)
+            LOG.warn("HttpResponseException occurred for req -> ${ctx.url()}")
+            val error = ErrorResponse(mapOf("body" to listOf(e.message)))
             ctx.json(error).status(e.status)
         }
     }
