@@ -67,7 +67,7 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
     }
 
     fun follow(email: String, usernameToFollow: String): Profile {
-        if (usernameToFollow == null || usernameToFollow.isNullOrBlank()) throw BadRequestResponse()
+        if (usernameToFollow.isNullOrBlank()) throw BadRequestResponse()
         return userRepository.follow(email, usernameToFollow).let { user ->
             user ?: throw NotFoundResponse()
             Profile(user.username, user.bio, user.image, true)
@@ -75,7 +75,7 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
     }
 
     fun unfollow(email: String, usernameToUnfollow: String): Profile {
-        if (usernameToUnfollow == null || usernameToUnfollow.isNullOrBlank()) throw BadRequestResponse()
+        if (usernameToUnfollow.isNullOrBlank()) throw BadRequestResponse()
         return userRepository.unfollow(email, usernameToUnfollow).let { user ->
             user ?: throw NotFoundResponse()
             Profile(user.username, user.bio, user.image, false)
