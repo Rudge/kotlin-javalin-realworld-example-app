@@ -1,9 +1,9 @@
 package io.realworld.app.config
 
-import io.realworld.app.domain.ArticleService
-import io.realworld.app.domain.UserService
 import io.realworld.app.domain.repository.ArticleRepository
 import io.realworld.app.domain.repository.UserRepository
+import io.realworld.app.domain.service.ArticleService
+import io.realworld.app.domain.service.UserService
 import io.realworld.app.utils.JwtProvider
 import io.realworld.app.web.Router
 import io.realworld.app.web.controllers.ArticleController

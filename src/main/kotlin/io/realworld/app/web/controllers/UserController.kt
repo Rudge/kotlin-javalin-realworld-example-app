@@ -2,7 +2,7 @@ package io.realworld.app.web.controllers
 
 import io.javalin.Context
 import io.realworld.app.domain.UserDTO
-import io.realworld.app.domain.UserService
+import io.realworld.app.domain.service.UserService
 import io.realworld.app.ext.isEmailValid
 
 class UserController(private val userService: UserService) {

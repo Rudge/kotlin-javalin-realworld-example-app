@@ -2,8 +2,8 @@ package io.realworld.app.web.controllers
 
 import io.javalin.Context
 import io.realworld.app.domain.ArticleDTO
-import io.realworld.app.domain.ArticleService
 import io.realworld.app.domain.ArticlesDTO
+import io.realworld.app.domain.service.ArticleService
 
 class ArticleController(private val articleService: ArticleService) {
     fun findBy(ctx: Context) {

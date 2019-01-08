@@ -2,7 +2,7 @@ package io.realworld.app.web.controllers
 
 import io.javalin.Context
 import io.realworld.app.domain.ProfileDTO
-import io.realworld.app.domain.UserService
+import io.realworld.app.domain.service.UserService
 
 class ProfileController(private val userService: UserService) {
     fun get(ctx: Context) {
