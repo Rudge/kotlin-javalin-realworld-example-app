@@ -1,11 +1,17 @@
 package io.realworld.app.domain.repository
 
+import io.javalin.NotFoundResponse
 import io.realworld.app.domain.User
 import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -31,10 +37,16 @@ object Users : LongIdTable() {
     }
 }
 
+object Follows : Table() {
+    val user: Column<Long> = long("user")
+    val follower: Column<Long> = long("user_follower")
+}
+
 class UserRepository(private val dataSource: DataSource) {
     init {
         transaction(Database.connect(dataSource)) {
             SchemaUtils.create(Users)
+            SchemaUtils.create(Follows)
         }
     }
 
@@ -51,6 +63,15 @@ class UserRepository(private val dataSource: DataSource) {
         var user: User? = null
         transaction(Database.connect(dataSource)) {
             val query = Users.select { Users.email eq email }
+            user = query.map { Users.toDomain(it) }.firstOrNull()
+        }
+        return user
+    }
+
+    fun findByUsername(username: String): User? {
+        var user: User? = null
+        transaction(Database.connect(dataSource)) {
+            val query = Users.select { Users.username eq username }
             user = query.map { Users.toDomain(it) }.firstOrNull()
         }
         return user
@@ -85,5 +106,43 @@ class UserRepository(private val dataSource: DataSource) {
             }
         }
         return findByEmail(user.email)
+    }
+
+    fun findIsFollowUser(email: String, userIdToFollow: Long): Boolean {
+        var has = false
+        transaction(Database.connect(dataSource)) {
+            has = Users.join(Follows, JoinType.INNER,
+                    additionalConstraint = {
+                        Follows.user eq Users.id and (Follows.follower eq userIdToFollow)
+                    })
+                    .select {
+                        Users.email eq email
+                    }
+                    .count() > 0
+        }
+        return has
+    }
+
+    fun follow(email: String, usernameToFollow: String): User? {
+        var user = findByEmail(email) ?: throw NotFoundResponse()
+        val userToFollow = findByUsername(usernameToFollow) ?: throw NotFoundResponse()
+        transaction(Database.connect(dataSource)) {
+            Follows.insert { row ->
+                row[Follows.user] = user.id!!
+                row[Follows.follower] = userToFollow.id!!
+            }
+        }
+        return userToFollow
+    }
+
+    fun unfollow(email: String, usernameToUnFollow: String): User? {
+        var user = findByEmail(email) ?: throw NotFoundResponse()
+        val userToUnfollow = findByUsername(usernameToUnFollow) ?: throw NotFoundResponse()
+        transaction(Database.connect(dataSource)) {
+            Follows.deleteWhere {
+                Follows.user eq user.id!! and (Follows.follower eq userToUnfollow.id!!)
+            }
+        }
+        return userToUnfollow
     }
 }

@@ -1,5 +1,6 @@
 package io.realworld.app.domain
 
+import io.javalin.BadRequestResponse
 import io.javalin.HttpResponseException
 import io.javalin.NotFoundResponse
 import io.javalin.UnauthorizedResponse
@@ -36,17 +37,24 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
     fun authenticate(user: User): User {
         val userFound = userRepository.findByEmail(user.email)
         if (userFound?.password == String(base64Encoder.encode(Cipher.encrypt(user.password)))) {
-            return userFound.copy(token = generateJwtToken(userFound),
-                    password = "")
+            return userFound.copy(token = generateJwtToken(userFound))
         }
         throw UnauthorizedResponse("email or password invalid!")
     }
 
-    fun getCurrent(email: String?): User? {
-        if (email.isNullOrBlank()) return null
+    fun getByEmail(email: String?): User {
+        if (email.isNullOrBlank()) throw BadRequestResponse()
         val user = userRepository.findByEmail(email!!)
         user ?: throw NotFoundResponse()
-        return user?.copy(token = generateJwtToken(user))
+        return user.copy(token = generateJwtToken(user))
+    }
+
+    fun getProfileByUsername(email: String, usernameFollowing: String?): Profile {
+        if (usernameFollowing == null || usernameFollowing.isNullOrBlank()) throw BadRequestResponse()
+        return userRepository.findByUsername(usernameFollowing).let { user ->
+            user ?: throw NotFoundResponse()
+            Profile(user.username, user.bio, user.image, userRepository.findIsFollowUser(email, user.id!!))
+        }
     }
 
     fun update(email: String?, user: User): User? {
@@ -56,5 +64,21 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
 
     private fun generateJwtToken(user: User): String? {
         return jwtProvider.createJWT(user, Roles.AUTHENTICATED)
+    }
+
+    fun follow(email: String, usernameToFollow: String): Profile {
+        if (usernameToFollow == null || usernameToFollow.isNullOrBlank()) throw BadRequestResponse()
+        return userRepository.follow(email, usernameToFollow).let { user ->
+            user ?: throw NotFoundResponse()
+            Profile(user.username, user.bio, user.image, true)
+        }
+    }
+
+    fun unfollow(email: String, usernameToUnfollow: String): Profile {
+        if (usernameToUnfollow == null || usernameToUnfollow.isNullOrBlank()) throw BadRequestResponse()
+        return userRepository.unfollow(email, usernameToUnfollow).let { user ->
+            user ?: throw NotFoundResponse()
+            Profile(user.username, user.bio, user.image, false)
+        }
     }
 }

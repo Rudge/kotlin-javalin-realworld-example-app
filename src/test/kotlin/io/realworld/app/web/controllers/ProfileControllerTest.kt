@@ -9,35 +9,19 @@ import io.realworld.app.domain.UserDTO
 import org.eclipse.jetty.http.HttpStatus
 import org.h2.tools.Server
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 
 class ProfileControllerTest {
     private lateinit var app: Javalin
     private lateinit var http: HttpUtil
 
-    companion object {
-        @BeforeClass
-        @JvmStatic
-        fun before() {
-            Server.createTcpServer().start()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun after() {
-            Server.createTcpServer().stop()
-        }
-    }
-
     @Before
     fun init() {
+        Server.createTcpServer().start()
         app = AppConfig().setup().start()
         http = HttpUtil(app.port())
     }
@@ -45,12 +29,14 @@ class ProfileControllerTest {
     @After
     fun cleanTokenHeader() {
         app.stop()
+        Server.createTcpServer().stop()
     }
 
     @Test
     fun `get profile by username`() {
         val email = "get_profile@valid_email.com"
         val password = "Test"
+        http.registerUser("celeb_get_profile@valid_email.com", password, "celeb_username")
         http.registerUser(email, password, "user_name_test")
         http.loginAndSetTokenHeader(email, password)
 
@@ -59,14 +45,14 @@ class ProfileControllerTest {
 
         assertEquals(response.status, HttpStatus.OK_200)
         assertEquals(response.body.profile.username, username)
-        assertNotNull(response.body.profile.bio)
-        assertNotNull(response.body.profile.image)
+        assertFalse(response.body.profile.following)
     }
 
     @Test
     fun `follow profile by username`() {
         val email = "follow_profile@valid_email.com"
         val password = "Test"
+        http.registerUser("celeb_follow_profile@valid_email.com", password, "celeb_username")
         http.registerUser(email, password, "user_name_test")
         http.loginAndSetTokenHeader(email, password)
 
@@ -76,8 +62,6 @@ class ProfileControllerTest {
 
         assertEquals(response.status, HttpStatus.OK_200)
         assertEquals(response.body.profile.username, username)
-        assertNotNull(response.body.profile.bio)
-        assertNotNull(response.body.profile.image)
         assertTrue(response.body.profile.following)
     }
 
@@ -85,6 +69,7 @@ class ProfileControllerTest {
     fun `unfollow profile by username`() {
         val email = "unfollow_profile@valid_email.com"
         val password = "Test"
+        http.registerUser("celeb_unfollow_profile@valid_email.com", password, "celeb_username")
         http.registerUser(email, password, "user_name_test")
         http.loginAndSetTokenHeader(email, password)
 
@@ -93,8 +78,6 @@ class ProfileControllerTest {
 
         assertEquals(response.status, HttpStatus.OK_200)
         assertEquals(response.body.profile.username, username)
-        assertNotNull(response.body.profile.bio)
-        assertNotNull(response.body.profile.image)
         assertFalse(response.body.profile.following)
     }
 }

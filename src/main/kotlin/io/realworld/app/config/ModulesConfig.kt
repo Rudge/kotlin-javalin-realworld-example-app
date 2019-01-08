@@ -34,7 +34,7 @@ object ModulesConfig {
         single { ArticleRepository(get()) }
     }
     private val profileModule = module {
-        single { ProfileController() }
+        single { ProfileController(get()) }
     }
     private val commentModule = module {
         single { CommentController() }

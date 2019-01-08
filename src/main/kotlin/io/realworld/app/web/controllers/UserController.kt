@@ -28,9 +28,9 @@ class UserController(private val userService: UserService) {
             }
         }
     }
-    
+
     fun getCurrent(ctx: Context) {
-        userService.getCurrent(ctx.attribute("email")).also { user ->
+        userService.getByEmail(ctx.attribute("email")).also { user ->
             ctx.json(UserDTO(user))
         }
     }
