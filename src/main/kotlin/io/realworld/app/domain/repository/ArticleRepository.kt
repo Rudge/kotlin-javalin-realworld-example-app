@@ -75,8 +75,8 @@ class ArticleRepository(private val dataSource: DataSource) {
         transaction(Database.connect(dataSource)) {
             Articles.insert { row ->
                 row[slug] = article.slug!!
-                row[title] = article.title
-                row[description] = article.description
+                row[title] = article.title!!
+                row[description] = article.description!!
                 row[body] = article.body
                 row[createdAt] = DateTime()
                 row[updatedAt] = DateTime()
@@ -112,9 +112,12 @@ class ArticleRepository(private val dataSource: DataSource) {
     fun update(slug: String, article: Article): Article? {
         transaction(Database.connect(dataSource)) {
             Articles.update({ Articles.slug eq slug }) { row ->
-                row[Articles.slug] = article.slug!!
-                row[title] = article.title
-                row[description] = article.description
+                if (article.slug != null)
+                    row[Articles.slug] = article.slug
+                if (article.title != null)
+                    row[title] = article.title
+                if (article.description != null)
+                    row[description] = article.description
                 row[body] = article.body
                 row[updatedAt] = DateTime()
                 if (article.author != null)

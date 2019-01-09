@@ -1,12 +1,12 @@
 package io.realworld.app.domain.service
 
 import com.github.slugify.Slugify
-import io.javalin.HttpResponseException
+import io.javalin.BadRequestResponse
+import io.javalin.InternalServerErrorResponse
 import io.javalin.NotFoundResponse
 import io.realworld.app.domain.Article
 import io.realworld.app.domain.repository.ArticleRepository
 import io.realworld.app.domain.repository.UserRepository
-import org.eclipse.jetty.http.HttpStatus
 
 class ArticleService(private val articleRepository: ArticleRepository,
                      private val userRepository: UserRepository) {
@@ -22,12 +22,13 @@ class ArticleService(private val articleRepository: ArticleRepository,
     }
 
     fun create(email: String?, article: Article): Article {
-        email ?: throw IllegalArgumentException("invalid user to create article")
-        val author = userRepository.findByEmail(email)
-        val articleCreated = articleRepository.create(article.copy(slug = Slugify().slugify(article.title), author =
-        author))
-        articleCreated ?: throw HttpResponseException(HttpStatus.NOT_ACCEPTABLE_406, "Article not found to update.")
-        return articleCreated
+        email ?: throw BadRequestResponse("invalid user to create article")
+        return userRepository.findByEmail(email).let { author ->
+            author ?: throw BadRequestResponse("invalid user to create article")
+            articleRepository.create(
+                    article.copy(slug = Slugify().slugify(article.title), author = author))
+                    ?: throw InternalServerErrorResponse("Error to create article.")
+        }
     }
 
     fun findBySlug(slug: String): Article? {
@@ -35,7 +36,9 @@ class ArticleService(private val articleRepository: ArticleRepository,
     }
 
     fun update(slug: String, article: Article): Article? {
-        return articleRepository.update(slug, article.copy(slug = Slugify().slugify(article.title)))
+        return findBySlug(slug).run {
+            articleRepository.update(slug, article.copy(slug = slug))
+        }
     }
 
     fun findFeed(limit: Int, offset: Int): List<Article> {

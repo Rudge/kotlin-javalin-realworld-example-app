@@ -50,8 +50,6 @@ class ArticleController(private val articleService: ArticleService) {
     fun update(ctx: Context) {
         val slug = ctx.validatedPathParam("slug").getOrThrow()
         ctx.validatedBody<ArticleDTO>()
-                .check({ !it.article?.title.isNullOrBlank() })
-                .check({ !it.article?.description.isNullOrBlank() })
                 .check({ !it.article?.body.isNullOrBlank() })
                 .getOrThrow().article?.also { article ->
             articleService.update(slug, article).apply {
