@@ -18,7 +18,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import javax.sql.DataSource
 
-object Users : LongIdTable() {
+internal object Users : LongIdTable() {
     val email: Column<String> = varchar("email", 200).uniqueIndex()
     val username: Column<String?> = varchar("username", 100).nullable()
     val password: Column<String> = varchar("password", 150)
@@ -37,9 +37,9 @@ object Users : LongIdTable() {
     }
 }
 
-object Follows : Table() {
-    val user: Column<Long> = long("user")
-    val follower: Column<Long> = long("user_follower")
+internal object Follows : Table() {
+    val user: Column<Long> = long("user").primaryKey()
+    val follower: Column<Long> = long("user_follower").primaryKey()
 }
 
 class UserRepository(private val dataSource: DataSource) {

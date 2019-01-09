@@ -1,5 +1,6 @@
 package io.realworld.app.domain.repository
 
+import io.javalin.NotFoundResponse
 import io.realworld.app.domain.Article
 import io.realworld.app.domain.User
 import org.jetbrains.exposed.sql.Column
@@ -10,6 +11,8 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -18,7 +21,7 @@ import org.jetbrains.exposed.sql.update
 import org.joda.time.DateTime
 import javax.sql.DataSource
 
-private object Articles : Table() {
+internal object Articles : Table() {
     val slug: Column<String> = varchar("slug", 100).primaryKey()
     val title: Column<String> = varchar("title", 150)
     val description: Column<String> = varchar("description", 150)
@@ -40,16 +43,23 @@ private object Articles : Table() {
     }
 }
 
+internal object Favorites : Table() {
+    val slug: Column<String> = varchar("slug", 100).primaryKey()
+    val user: Column<Long> = long("user").primaryKey()
+}
+
 class ArticleRepository(private val dataSource: DataSource) {
 
     init {
         transaction(Database.connect(dataSource)) {
             SchemaUtils.create(Articles)
+            SchemaUtils.create(Favorites)
         }
     }
 
     private fun findWithConditional(where: Op<Boolean>, limit: Int, offset: Int): List<Article> {
         var articles = emptyList<Article>()
+
         transaction(Database.connect(dataSource)) {
             articles = Articles.join(Users, JoinType.INNER,
                     additionalConstraint = { Articles.author eq Users.id })
@@ -57,7 +67,8 @@ class ArticleRepository(private val dataSource: DataSource) {
                     .limit(limit, offset)
                     .orderBy(Articles.createdAt, true)
                     .map { row ->
-                        Articles.toDomain(row, Users.toDomain(row))
+                        val favoritesCount = Favorites.select { Favorites.slug eq row[Articles.slug] }.count()
+                        Articles.toDomain(row, Users.toDomain(row)).copy(favoritesCount = favoritesCount.toLong())
                     }
         }
         return articles
@@ -89,7 +100,7 @@ class ArticleRepository(private val dataSource: DataSource) {
     fun findAll(limit: Int, offset: Int): List<Article> {
         var articles = emptyList<Article>()
         transaction(Database.connect(dataSource)) {
-            val query = Articles.join(Users, JoinType.INNER,
+            Articles.join(Users, JoinType.INNER,
                     additionalConstraint = { Articles.author eq Users.id })
                     .selectAll()
                     .limit(limit, offset)
@@ -110,6 +121,7 @@ class ArticleRepository(private val dataSource: DataSource) {
     }
 
     fun update(slug: String, article: Article): Article? {
+        var favoritesCount = 0
         transaction(Database.connect(dataSource)) {
             Articles.update({ Articles.slug eq slug }) { row ->
                 if (article.slug != null)
@@ -123,28 +135,47 @@ class ArticleRepository(private val dataSource: DataSource) {
                 if (article.author != null)
                     row[author] = article.author.id!!
             }
+            if (article.slug != null) {
+                Favorites.update({ Favorites.slug eq slug }) { row ->
+                    row[Favorites.slug] = slug
+                }
+            }
+            favoritesCount = Favorites.select { Favorites.slug eq article.slug!! }.count()
         }
-        return findBySlug(article.slug!!)
+        return findBySlug(article.slug!!)?.copy(favoritesCount = favoritesCount.toLong())
     }
 
-    fun favorite(slug: String): Article {
+    fun favorite(userId: Long, slug: String): Article? {
+        var favoritesCount = 0
+        val article = findBySlug(slug) ?: throw NotFoundResponse()
         transaction(Database.connect(dataSource)) {
-
+            Favorites.insert { row ->
+                row[Favorites.slug] = article.slug!!
+                row[Favorites.user] = userId
+            }.also {
+                favoritesCount = Favorites.select { Favorites.slug eq article.slug!! }.count()
+            }
         }
-        return Article("", "", "", "", favorited = true, favoritesCount = 1)
+        return article.copy(favorited = true, favoritesCount = favoritesCount.toLong())
     }
 
-    fun unfavorite(slug: String): Article {
+    fun unfavorite(userId: Long, slug: String): Article? {
+        var favoritesCount = 0
+        val article = findBySlug(slug) ?: throw NotFoundResponse()
         transaction(Database.connect(dataSource)) {
-
+            Favorites.deleteWhere {
+                Favorites.slug eq article.slug!! and (Favorites.user eq userId)
+            }.also {
+                favoritesCount = Favorites.select { Favorites.slug eq article.slug!! }.count()
+            }
         }
-        return Article("", "", "", "")
+        return article.copy(favoritesCount = favoritesCount.toLong())
     }
 
-    fun delete(slug: String): Article {
+    fun delete(slug: String) {
         transaction(Database.connect(dataSource)) {
-
+            Articles.deleteWhere { Articles.slug eq slug }
+            Favorites.deleteWhere { Favorites.slug eq slug }
         }
-        return Article("", "", "", "")
     }
 }

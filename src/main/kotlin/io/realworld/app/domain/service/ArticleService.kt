@@ -45,15 +45,23 @@ class ArticleService(private val articleRepository: ArticleRepository,
         return articleRepository.findAll(limit, offset)
     }
 
-    fun favorite(slug: String): Article {
-        return articleRepository.favorite(slug)
+    fun favorite(email: String?, slug: String): Article {
+        email ?: throw BadRequestResponse("invalid user to favorite article")
+        return userRepository.findByEmail(email).let { user ->
+            user ?: throw BadRequestResponse()
+            articleRepository.favorite(user.id!!, slug)
+        } ?: throw NotFoundResponse()
     }
 
-    fun unfavorite(slug: String): Article {
-        return articleRepository.unfavorite(slug)
+    fun unfavorite(email: String?, slug: String): Article {
+        email ?: throw BadRequestResponse("invalid user to unfavorite article")
+        return userRepository.findByEmail(email).let { user ->
+            user ?: throw BadRequestResponse()
+            articleRepository.unfavorite(user.id!!, slug)
+        } ?: throw NotFoundResponse()
     }
 
-    fun delete(slug: String): Article {
+    fun delete(slug: String) {
         return articleRepository.delete(slug)
     }
 }

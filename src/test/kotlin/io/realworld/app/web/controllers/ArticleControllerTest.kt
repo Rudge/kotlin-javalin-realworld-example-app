@@ -9,34 +9,19 @@ import io.realworld.app.domain.ArticlesDTO
 import org.eclipse.jetty.http.HttpStatus
 import org.h2.tools.Server
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 
 class ArticleControllerTest {
     private lateinit var app: Javalin
     private lateinit var http: HttpUtil
 
-    companion object {
-        @BeforeClass
-        @JvmStatic
-        fun before() {
-            Server.createTcpServer().start()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun after() {
-            Server.createTcpServer().stop()
-        }
-    }
-
     @Before
     fun init() {
+        Server.createTcpServer().start()
         app = AppConfig().setup().start()
         http = HttpUtil(app.port())
     }
@@ -44,6 +29,7 @@ class ArticleControllerTest {
     @After
     fun cleanTokenHeader() {
         app.stop()
+        Server.createTcpServer().stop()
     }
 
     @Test
@@ -209,7 +195,13 @@ class ArticleControllerTest {
         http.registerUser(email, password, "user_name_test")
         http.loginAndSetTokenHeader(email, password)
 
-        val slug = "slugTest"
+        val article = Article(title = "slug test",
+                description = "Ever wonder how?",
+                body = "Very carefully.",
+                tagList = listOf("dragons", "training"))
+        http.post<ArticleDTO>("/api/articles", ArticleDTO(article))
+
+        val slug = "slug-test"
         val response = http.post<ArticleDTO>("/api/articles/$slug/favorite")
 
         assertEquals(response.status, HttpStatus.OK_200)
@@ -227,7 +219,13 @@ class ArticleControllerTest {
         http.registerUser(email, password, "user_name_test")
         http.loginAndSetTokenHeader(email, password)
 
-        val slug = "slugTest"
+        val article = Article(title = "slug test 2",
+                description = "Ever wonder how?",
+                body = "Very carefully.",
+                tagList = listOf("dragons", "training"))
+        http.post<ArticleDTO>("/api/articles", ArticleDTO(article))
+
+        val slug = "slug-test-2"
         val response = http.delete<ArticleDTO>("/api/articles/$slug/favorite")
 
         assertEquals(response.status, HttpStatus.OK_200)

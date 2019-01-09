@@ -66,7 +66,7 @@ class ArticleController(private val articleService: ArticleService) {
 
     fun favorite(ctx: Context) {
         ctx.validatedPathParam("slug").getOrThrow().also { slug ->
-            articleService.favorite(slug).apply {
+            articleService.favorite(ctx.attribute("email"), slug).apply {
                 ctx.json(ArticleDTO(this))
             }
         }
@@ -74,7 +74,7 @@ class ArticleController(private val articleService: ArticleService) {
 
     fun unfavorite(ctx: Context) {
         ctx.validatedPathParam("slug").getOrThrow().also { slug ->
-            articleService.unfavorite(slug).apply {
+            articleService.unfavorite(ctx.attribute("email"), slug).apply {
                 ctx.json(ArticleDTO(this))
             }
         }
