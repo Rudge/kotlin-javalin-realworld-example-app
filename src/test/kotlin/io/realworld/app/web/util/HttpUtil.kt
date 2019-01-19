@@ -14,7 +14,6 @@ import io.realworld.app.domain.User
 import io.realworld.app.domain.UserDTO
 
 class HttpUtil(port: Int) {
-
     private val json = "application/json"
     val headers = mutableMapOf(Header.ACCEPT to json, Header.CONTENT_TYPE to json)
 
@@ -25,7 +24,7 @@ class HttpUtil(port: Int) {
             }
 
             override fun writeValue(value: Any): String {
-                return return JavalinJson.toJson(value)
+                return JavalinJson.toJson(value)
             }
         })
     }
