@@ -41,8 +41,9 @@ class ArticleService(private val articleRepository: ArticleRepository,
         }
     }
 
-    fun findFeed(limit: Int, offset: Int): List<Article> {
-        return articleRepository.findAll(limit, offset)
+    fun findFeed(email: String?, limit: Int, offset: Int): List<Article> {
+        email ?: throw BadRequestResponse("invalid user to find feeds")
+        return articleRepository.findFeed(email, limit, offset)
     }
 
     fun favorite(email: String?, slug: String): Article {

@@ -6,6 +6,7 @@ import io.realworld.app.domain.ArticlesDTO
 import io.realworld.app.domain.service.ArticleService
 
 class ArticleController(private val articleService: ArticleService) {
+    
     fun findBy(ctx: Context) {
         val tag = ctx.queryParam("tag")
         val author = ctx.queryParam("author")
@@ -20,7 +21,7 @@ class ArticleController(private val articleService: ArticleService) {
     fun feed(ctx: Context) {
         val limit = ctx.queryParam("limit") ?: "20"
         val offset = ctx.queryParam("offset") ?: "0"
-        articleService.findFeed(limit.toInt(), offset.toInt()).also { articles ->
+        articleService.findFeed(ctx.attribute("email"), limit.toInt(), offset.toInt()).also { articles ->
             ctx.json(ArticlesDTO(articles, articles.size))
         }
     }
