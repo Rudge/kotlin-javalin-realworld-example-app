@@ -14,7 +14,6 @@ import org.eclipse.jetty.http.HttpStatus
 import java.util.*
 
 class UserService(private val jwtProvider: JwtProvider, private val userRepository: UserRepository) {
-
     private val base64Encoder = Base64.getEncoder()
 
     fun create(user: User): User {
@@ -59,17 +58,13 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
     }
 
     fun follow(email: String, usernameToFollow: String): Profile {
-        if (usernameToFollow.isNullOrBlank()) throw BadRequestResponse()
         return userRepository.follow(email, usernameToFollow).let { user ->
-            user ?: throw NotFoundResponse()
             Profile(user.username, user.bio, user.image, true)
         }
     }
 
     fun unfollow(email: String, usernameToUnfollow: String): Profile {
-        if (usernameToUnfollow.isNullOrBlank()) throw BadRequestResponse()
         return userRepository.unfollow(email, usernameToUnfollow).let { user ->
-            user ?: throw NotFoundResponse()
             Profile(user.username, user.bio, user.image, false)
         }
     }

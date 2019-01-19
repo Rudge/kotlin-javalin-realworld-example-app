@@ -20,7 +20,7 @@ import javax.sql.DataSource
 
 internal object Users : LongIdTable() {
     val email: Column<String> = varchar("email", 200).uniqueIndex()
-    val username: Column<String?> = varchar("username", 100).nullable()
+    val username: Column<String> = varchar("username", 100).uniqueIndex()
     val password: Column<String> = varchar("password", 150)
     val bio: Column<String?> = varchar("bio", 1000).nullable()
     val image: Column<String?> = varchar("image", 255).nullable()
@@ -82,7 +82,7 @@ class UserRepository(private val dataSource: DataSource) {
         transaction(Database.connect(dataSource)) {
             id = Users.insertAndGetId { row ->
                 row[Users.email] = user.email
-                row[Users.username] = user.username
+                row[Users.username] = user.username!!
                 row[Users.password] = user.password!!
                 row[Users.bio] = user.bio
                 row[Users.image] = user.image
@@ -123,19 +123,19 @@ class UserRepository(private val dataSource: DataSource) {
         return has
     }
 
-    fun follow(email: String, usernameToFollow: String): User? {
+    fun follow(email: String, usernameToFollow: String): User {
         var user = findByEmail(email) ?: throw NotFoundResponse()
         val userToFollow = findByUsername(usernameToFollow) ?: throw NotFoundResponse()
         transaction(Database.connect(dataSource)) {
             Follows.insert { row ->
-                row[Follows.user] = user.id!!
-                row[Follows.follower] = userToFollow.id!!
+                row[Follows.user] = userToFollow.id!!
+                row[Follows.follower] = user.id!!
             }
         }
         return userToFollow
     }
 
-    fun unfollow(email: String, usernameToUnFollow: String): User? {
+    fun unfollow(email: String, usernameToUnFollow: String): User {
         var user = findByEmail(email) ?: throw NotFoundResponse()
         val userToUnfollow = findByUsername(usernameToUnFollow) ?: throw NotFoundResponse()
         transaction(Database.connect(dataSource)) {
