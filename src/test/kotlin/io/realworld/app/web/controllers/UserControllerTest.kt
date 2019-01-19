@@ -7,7 +7,6 @@ import io.realworld.app.domain.User
 import io.realworld.app.domain.UserDTO
 import io.realworld.app.web.ErrorResponse
 import org.eclipse.jetty.http.HttpStatus
-import org.h2.tools.Server
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -20,16 +19,14 @@ class UserControllerTest {
     private lateinit var http: HttpUtil
 
     @Before
-    fun init() {
-        Server.createTcpServer().start()
+    fun start() {
         app = AppConfig().setup().start()
         http = HttpUtil(app.port())
     }
 
     @After
-    fun cleanTokenHeader() {
+    fun stop() {
         app.stop()
-        Server.createTcpServer().stop()
     }
 
     @Test

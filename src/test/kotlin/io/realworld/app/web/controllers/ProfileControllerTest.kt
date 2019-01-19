@@ -5,7 +5,6 @@ import io.javalin.util.HttpUtil
 import io.realworld.app.config.AppConfig
 import io.realworld.app.domain.ProfileDTO
 import org.eclipse.jetty.http.HttpStatus
-import org.h2.tools.Server
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -18,16 +17,14 @@ class ProfileControllerTest {
     private lateinit var http: HttpUtil
 
     @Before
-    fun init() {
-        Server.createTcpServer().start()
+    fun start() {
         app = AppConfig().setup().start()
         http = HttpUtil(app.port())
     }
 
     @After
-    fun cleanTokenHeader() {
+    fun stop() {
         app.stop()
-        Server.createTcpServer().stop()
     }
 
     @Test
