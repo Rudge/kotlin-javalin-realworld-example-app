@@ -1,12 +1,12 @@
 package io.realworld.app.web.controllers
 
 import io.javalin.Context
-import io.realworld.app.domain.TagDTO
+import io.realworld.app.domain.service.TagService
 
-class TagController {
-
+class TagController(private val tagService: TagService) {
     fun get(ctx: Context) {
-        ctx.json(TagDTO(listOf(" ")))
+        tagService.findAll().also { tagDto ->
+            ctx.json(tagDto)
+        }
     }
-
 }

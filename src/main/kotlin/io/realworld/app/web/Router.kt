@@ -59,7 +59,7 @@ class Router(private val userController: UserController,
                 post(articleController::create, roles(Roles.AUTHENTICATED))
             }
             path("tags") {
-                get(tagController::get, roles(Roles.ANYONE))
+                get(tagController::get, rolesOptionalAuthenticated)
             }
         }
     }

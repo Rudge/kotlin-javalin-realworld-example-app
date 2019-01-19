@@ -1,8 +1,10 @@
 package io.realworld.app.config
 
 import io.realworld.app.domain.repository.ArticleRepository
+import io.realworld.app.domain.repository.TagRepository
 import io.realworld.app.domain.repository.UserRepository
 import io.realworld.app.domain.service.ArticleService
+import io.realworld.app.domain.service.TagService
 import io.realworld.app.domain.service.UserService
 import io.realworld.app.utils.JwtProvider
 import io.realworld.app.web.Router
@@ -40,7 +42,9 @@ object ModulesConfig {
         single { CommentController() }
     }
     private val tagModule = module {
-        single { TagController() }
+        single { TagController(get()) }
+        single { TagService(get()) }
+        single { TagRepository(get()) }
     }
     internal val allModules = listOf(ModulesConfig.configModule, ModulesConfig.userModule,
             ModulesConfig.articleModule, ModulesConfig.profileModule, ModulesConfig.commentModule,
