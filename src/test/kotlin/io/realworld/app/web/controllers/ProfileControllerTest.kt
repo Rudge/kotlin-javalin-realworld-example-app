@@ -4,8 +4,6 @@ import io.javalin.Javalin
 import io.javalin.util.HttpUtil
 import io.realworld.app.config.AppConfig
 import io.realworld.app.domain.ProfileDTO
-import io.realworld.app.domain.User
-import io.realworld.app.domain.UserDTO
 import org.eclipse.jetty.http.HttpStatus
 import org.h2.tools.Server
 import org.junit.After
@@ -44,8 +42,8 @@ class ProfileControllerTest {
         val response = http.get<ProfileDTO>("/api/profiles/$username")
 
         assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.profile.username, username)
-        assertFalse(response.body.profile.following)
+        assertEquals(response.body.profile?.username, username)
+        assertFalse(response.body.profile?.following ?: true)
     }
 
     @Test
@@ -57,12 +55,11 @@ class ProfileControllerTest {
         http.loginAndSetTokenHeader(email, password)
 
         val username = "celeb_username"
-        val userDTO = UserDTO(User(email = "other_test@other_test.com", password = "Test"))
-        val response = http.post<ProfileDTO>("/api/profiles/$username/follow", userDTO)
+        val response = http.post<ProfileDTO>("/api/profiles/$username/follow")
 
         assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.profile.username, username)
-        assertTrue(response.body.profile.following)
+        assertEquals(response.body.profile?.username, username)
+        assertTrue(response.body.profile?.following ?: false)
     }
 
     @Test
@@ -77,7 +74,7 @@ class ProfileControllerTest {
         val response = http.delete<ProfileDTO>("/api/profiles/$username/follow")
 
         assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.profile.username, username)
-        assertFalse(response.body.profile.following)
+        assertEquals(response.body.profile?.username, username)
+        assertFalse(response.body.profile?.following ?: true)
     }
 }
