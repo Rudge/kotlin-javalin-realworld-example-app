@@ -22,7 +22,7 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
                     "Email already registered!")
         }
         userRepository.create(user.copy(password = String(base64Encoder.encode(Cipher.encrypt(user.password)))))
-        return user
+        return user.copy(token = generateJwtToken(user))
     }
 
     fun authenticate(user: User): User {

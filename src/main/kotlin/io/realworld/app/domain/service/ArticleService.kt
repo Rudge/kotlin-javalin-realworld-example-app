@@ -65,7 +65,7 @@ class ArticleService(private val articleRepository: ArticleRepository,
             user ?: throw BadRequestResponse()
             articleRepository.unfavorite(user.id!!, slug)
                     .let { favoritesCount ->
-                        article.copy(favorited = true, favoritesCount = favoritesCount.toLong())
+                        article.copy(favorited = false, favoritesCount = favoritesCount.toLong())
                     }
         }
     }

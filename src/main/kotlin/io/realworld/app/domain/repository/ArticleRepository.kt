@@ -121,7 +121,6 @@ class ArticleRepository(private val dataSource: DataSource) {
             article.tagList.map { tag ->
                 Tags.slice(Tags.id).select { Tags.name eq tag }.map { row -> row[Tags.id].value }.firstOrNull()
                         ?: Tags.insertAndGetId { it[name] = tag }.value
-
             }.also {
                 ArticlesTags.batchInsert(it) { tagId ->
                     this[ArticlesTags.tag] = tagId
