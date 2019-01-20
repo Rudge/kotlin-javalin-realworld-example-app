@@ -46,12 +46,12 @@ private object Articles : Table() {
     }
 }
 
-internal object Favorites : Table() {
+private object Favorites : Table() {
     val slug: Column<String> = varchar("slug", 100).primaryKey()
     val user: Column<Long> = long("user").primaryKey()
 }
 
-internal object ArticlesTags : Table() {
+private object ArticlesTags : Table() {
     val tag: Column<Long> = long("tag").primaryKey()
     val slug: Column<String> = varchar("slug", 100).primaryKey()
 }
@@ -67,47 +67,44 @@ class ArticleRepository(private val dataSource: DataSource) {
     }
 
     private fun findWithConditional(where: Op<Boolean>, limit: Int, offset: Int): List<Article> {
-        var articles = emptyList<Article>()
-
-        transaction(Database.connect(dataSource)) {
-            articles = Articles.join(Users, JoinType.INNER, additionalConstraint = { Articles.author eq Users.id })
+        return transaction(Database.connect(dataSource)) {
+            Articles.join(Users, JoinType.INNER, additionalConstraint = { Articles.author eq Users.id })
                     .select { where }
                     .limit(limit, offset)
                     .orderBy(Articles.createdAt, true)
                     .map { row ->
-                        val favoritesCount = Favorites.select { Favorites.slug eq row[Articles.slug] }.count()
+                        val slug = row[Articles.slug]
+                        val favoritesCount = Favorites.select { Favorites.slug eq slug }.count()
+                        val tagList = Tags.join(ArticlesTags, JoinType.INNER,
+                                additionalConstraint = { Tags.id eq ArticlesTags.tag })
+                                .select { ArticlesTags.slug eq slug }
+                                .map { it[Tags.name] }
                         Articles.toDomain(row, Users.toDomain(row))
                                 .copy(favorited = favoritesCount > 0,
                                         favoritesCount = favoritesCount.toLong(),
-                                        tagList = Tags.join(ArticlesTags, JoinType.INNER,
-                                                additionalConstraint = { Tags.id eq ArticlesTags.tag })
-                                                .select { ArticlesTags.slug eq row[Articles.slug] }
-                                                .map { it[Tags.name] })
+                                        tagList = tagList)
                     }
         }
-        return articles
     }
 
     fun findByTag(tag: String, limit: Int, offset: Int): List<Article> {
-        return transaction(Database.connect(dataSource)) {
+        val slugs = transaction(Database.connect(dataSource)) {
             Tags.join(ArticlesTags, JoinType.INNER, additionalConstraint = { Tags.id eq ArticlesTags.tag })
                     .select { Tags.name eq tag }
                     .map { it[ArticlesTags.slug] }
-                    .let {
-                        findWithConditional((Articles.slug inList it), limit, offset)
-                    }
         }
+        return findWithConditional((Articles.slug inList slugs), limit, offset)
+
     }
 
     fun findByFavorited(favorited: String, limit: Int, offset: Int): List<Article> {
-        var articlesFavorited = emptyList<String>()
-        transaction(Database.connect(dataSource)) {
-            articlesFavorited = Favorites.join(Users, JoinType.INNER, additionalConstraint = { Favorites.user eq Users.id })
+        val slugs = transaction(Database.connect(dataSource)) {
+            Favorites.join(Users, JoinType.INNER, additionalConstraint = { Favorites.user eq Users.id })
                     .slice(Favorites.slug)
                     .select { Users.username eq favorited }
                     .map { it[Favorites.slug] }
         }
-        return findWithConditional((Articles.slug inList articlesFavorited), limit, offset)
+        return findWithConditional((Articles.slug inList slugs), limit, offset)
     }
 
     fun create(article: Article): Article? {
@@ -136,10 +133,8 @@ class ArticleRepository(private val dataSource: DataSource) {
     }
 
     fun findAll(limit: Int, offset: Int): List<Article> {
-        var articles = emptyList<Article>()
-
-        transaction(Database.connect(dataSource)) {
-            articles = Articles.join(Users, JoinType.INNER, additionalConstraint = { Articles.author eq Users.id })
+        return transaction(Database.connect(dataSource)) {
+            Articles.join(Users, JoinType.INNER, additionalConstraint = { Articles.author eq Users.id })
                     .selectAll()
                     .limit(limit, offset)
                     .orderBy(Articles.createdAt, true)
@@ -153,18 +148,16 @@ class ArticleRepository(private val dataSource: DataSource) {
                                         .map { it[Tags.name] })
                     }
         }
-        return articles
     }
 
     fun findFeed(email: String, limit: Int, offset: Int): List<Article> {
-        var authorsFollows = emptyList<Long>()
-        transaction(Database.connect(dataSource)) {
-            authorsFollows = Follows.join(Users, JoinType.INNER, additionalConstraint = { Follows.follower eq Users.id })
+        val authors = transaction(Database.connect(dataSource)) {
+            Follows.join(Users, JoinType.INNER, additionalConstraint = { Follows.follower eq Users.id })
                     .slice(Follows.user)
                     .select { Users.email eq email }
                     .map { it[Follows.user] }
         }
-        return findWithConditional((Articles.author inList authorsFollows), limit, offset)
+        return findWithConditional((Articles.author inList authors), limit, offset)
     }
 
     fun findBySlug(slug: String): Article? {
@@ -176,8 +169,7 @@ class ArticleRepository(private val dataSource: DataSource) {
     }
 
     fun update(slug: String, article: Article): Article? {
-        var favoritesCount = 0
-        transaction(Database.connect(dataSource)) {
+        return transaction(Database.connect(dataSource)) {
             Articles.update({ Articles.slug eq slug }) { row ->
                 if (article.slug != null)
                     row[Articles.slug] = article.slug
@@ -195,36 +187,34 @@ class ArticleRepository(private val dataSource: DataSource) {
                     row[Favorites.slug] = slug
                 }
             }
-            favoritesCount = Favorites.select { Favorites.slug eq article.slug!! }.count()
+            Favorites.select {
+                Favorites.slug eq article.slug!!
+            }.count()
+        }.let {
+            findBySlug(article.slug!!)?.copy(favoritesCount = it.toLong())
         }
-        return findBySlug(article.slug!!)?.copy(favoritesCount = favoritesCount.toLong())
     }
 
-    fun favorite(userId: Long, slug: String): Article? {
-        var favoritesCount = 0
-        val article = findBySlug(slug) ?: throw NotFoundResponse()
-        transaction(Database.connect(dataSource)) {
+    fun favorite(userId: Long, slug: String): Int {
+        return transaction(Database.connect(dataSource)) {
             Favorites.insert { row ->
-                row[Favorites.slug] = article.slug!!
+                row[Favorites.slug] = slug
                 row[Favorites.user] = userId
-            }.also {
-                favoritesCount = Favorites.select { Favorites.slug eq article.slug!! }.count()
+            }.let {
+                Favorites.select { Favorites.slug eq slug }.count()
             }
         }
-        return article.copy(favorited = true, favoritesCount = favoritesCount.toLong())
     }
 
-    fun unfavorite(userId: Long, slug: String): Article? {
-        var favoritesCount = 0
+    fun unfavorite(userId: Long, slug: String): Int {
         val article = findBySlug(slug) ?: throw NotFoundResponse()
-        transaction(Database.connect(dataSource)) {
+        return transaction(Database.connect(dataSource)) {
             Favorites.deleteWhere {
                 Favorites.slug eq article.slug!! and (Favorites.user eq userId)
-            }.also {
-                favoritesCount = Favorites.select { Favorites.slug eq article.slug!! }.count()
+            }.let {
+                Favorites.select { Favorites.slug eq article.slug!! }.count()
             }
         }
-        return article.copy(favorited = false, favoritesCount = favoritesCount.toLong())
     }
 
     fun delete(slug: String) {
