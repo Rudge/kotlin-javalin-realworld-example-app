@@ -50,20 +50,12 @@ class UserRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun findById(id: Long): User? {
-        var user: User? = null
-        transaction(Database.connect(dataSource)) {
-            val query = Users.select { Users.id eq id }
-            user = query.map { Users.toDomain(it) }.firstOrNull()
-        }
-        return user
-    }
-
     fun findByEmail(email: String): User? {
         var user: User? = null
         transaction(Database.connect(dataSource)) {
-            val query = Users.select { Users.email eq email }
-            user = query.map { Users.toDomain(it) }.firstOrNull()
+            user = Users.select { Users.email eq email }
+                    .map { Users.toDomain(it) }
+                    .firstOrNull()
         }
         return user
     }
@@ -71,8 +63,9 @@ class UserRepository(private val dataSource: DataSource) {
     fun findByUsername(username: String): User? {
         var user: User? = null
         transaction(Database.connect(dataSource)) {
-            val query = Users.select { Users.username eq username }
-            user = query.map { Users.toDomain(it) }.firstOrNull()
+            user = Users.select { Users.username eq username }
+                    .map { Users.toDomain(it) }
+                    .firstOrNull()
         }
         return user
     }
