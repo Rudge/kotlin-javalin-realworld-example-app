@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -88,15 +89,14 @@ class ArticleRepository(private val dataSource: DataSource) {
     }
 
     fun findByTag(tag: String, limit: Int, offset: Int): List<Article> {
-        var slug: String? = null
-        transaction(Database.connect(dataSource)) {
-            slug = Tags.join(ArticlesTags, JoinType.INNER, additionalConstraint = { Tags.id eq ArticlesTags.tag })
+        return transaction(Database.connect(dataSource)) {
+            Tags.join(ArticlesTags, JoinType.INNER, additionalConstraint = { Tags.id eq ArticlesTags.tag })
                     .select { Tags.name eq tag }
-                    .map { it[ArticlesTags.slug] }.firstOrNull()
+                    .map { it[ArticlesTags.slug] }
+                    .let {
+                        findWithConditional((Articles.slug inList it), limit, offset)
+                    }
         }
-        slug ?: throw NotFoundResponse()
-        return findWithConditional((Articles.slug eq slug!!), limit, offset)
-
     }
 
     fun findByFavorited(favorited: String, limit: Int, offset: Int): List<Article> {
@@ -121,9 +121,11 @@ class ArticleRepository(private val dataSource: DataSource) {
                 row[updatedAt] = DateTime()
                 row[author] = article.author?.id!!
             }
-            Tags.batchInsert(article.tagList) { name ->
-                this[Tags.name] = name
-            }.map { it[Tags.id] as Long }.also {
+            article.tagList.map { tag ->
+                Tags.slice(Tags.id).select { Tags.name eq tag }.map { row -> row[Tags.id].value }.firstOrNull()
+                        ?: Tags.insertAndGetId { it[name] = tag }.value
+
+            }.also {
                 ArticlesTags.batchInsert(it) { tagId ->
                     this[ArticlesTags.tag] = tagId
                     this[ArticlesTags.slug] = article.slug!!
@@ -222,7 +224,7 @@ class ArticleRepository(private val dataSource: DataSource) {
                 favoritesCount = Favorites.select { Favorites.slug eq article.slug!! }.count()
             }
         }
-        return article.copy(favoritesCount = favoritesCount.toLong())
+        return article.copy(favorited = false, favoritesCount = favoritesCount.toLong())
     }
 
     fun delete(slug: String) {
