@@ -20,10 +20,8 @@ class TagRepository(private val dataSource: DataSource) {
     }
 
     fun findAll(): List<String> {
-        var tags = emptyList<String>()
-        transaction(Database.connect(dataSource)) {
-            tags = Tags.selectAll().map { it[Tags.name] }
+        return transaction(Database.connect(dataSource)) {
+            Tags.selectAll().map { it[Tags.name] }
         }
-        return tags
     }
 }

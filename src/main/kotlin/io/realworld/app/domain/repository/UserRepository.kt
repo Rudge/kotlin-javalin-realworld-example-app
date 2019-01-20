@@ -51,29 +51,24 @@ class UserRepository(private val dataSource: DataSource) {
     }
 
     fun findByEmail(email: String): User? {
-        var user: User? = null
-        transaction(Database.connect(dataSource)) {
-            user = Users.select { Users.email eq email }
+        return transaction(Database.connect(dataSource)) {
+            Users.select { Users.email eq email }
                     .map { Users.toDomain(it) }
                     .firstOrNull()
         }
-        return user
     }
 
     fun findByUsername(username: String): User? {
-        var user: User? = null
-        transaction(Database.connect(dataSource)) {
-            user = Users.select { Users.username eq username }
+        return transaction(Database.connect(dataSource)) {
+            Users.select { Users.username eq username }
                     .map { Users.toDomain(it) }
                     .firstOrNull()
         }
-        return user
     }
 
     fun create(user: User): Long? {
-        var id: Long? = null
-        transaction(Database.connect(dataSource)) {
-            id = Users.insertAndGetId { row ->
+        return transaction(Database.connect(dataSource)) {
+            Users.insertAndGetId { row ->
                 row[Users.email] = user.email
                 row[Users.username] = user.username!!
                 row[Users.password] = user.password!!
@@ -81,7 +76,6 @@ class UserRepository(private val dataSource: DataSource) {
                 row[Users.image] = user.image
             }.value
         }
-        return id
     }
 
     fun update(email: String, user: User): User? {
@@ -102,9 +96,8 @@ class UserRepository(private val dataSource: DataSource) {
     }
 
     fun findIsFollowUser(email: String, userIdToFollow: Long): Boolean {
-        var has = false
-        transaction(Database.connect(dataSource)) {
-            has = Users.join(Follows, JoinType.INNER,
+        return transaction(Database.connect(dataSource)) {
+            Users.join(Follows, JoinType.INNER,
                     additionalConstraint = {
                         Follows.user eq Users.id and (Follows.follower eq userIdToFollow)
                     })
@@ -113,11 +106,10 @@ class UserRepository(private val dataSource: DataSource) {
                     }
                     .count() > 0
         }
-        return has
     }
 
     fun follow(email: String, usernameToFollow: String): User {
-        var user = findByEmail(email) ?: throw NotFoundResponse()
+        val user = findByEmail(email) ?: throw NotFoundResponse()
         val userToFollow = findByUsername(usernameToFollow) ?: throw NotFoundResponse()
         transaction(Database.connect(dataSource)) {
             Follows.insert { row ->
@@ -129,7 +121,7 @@ class UserRepository(private val dataSource: DataSource) {
     }
 
     fun unfollow(email: String, usernameToUnFollow: String): User {
-        var user = findByEmail(email) ?: throw NotFoundResponse()
+        val user = findByEmail(email) ?: throw NotFoundResponse()
         val userToUnfollow = findByUsername(usernameToUnFollow) ?: throw NotFoundResponse()
         transaction(Database.connect(dataSource)) {
             Follows.deleteWhere {

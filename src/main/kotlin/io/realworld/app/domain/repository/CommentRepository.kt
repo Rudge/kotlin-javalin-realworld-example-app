@@ -42,40 +42,34 @@ class CommentRepository(private val dataSource: DataSource) {
     }
 
     private fun findById(commentId: Long): Comment? {
-        var comment: Comment? = null
-        transaction(Database.connect(dataSource)) {
-            comment = Comments.select { Comments.id eq commentId }.map { Comments.toDomain(it, null) }.firstOrNull()
+        return transaction(Database.connect(dataSource)) {
+            Comments.select { Comments.id eq commentId }.map { Comments.toDomain(it, null) }.firstOrNull()
         }
-        return comment
     }
 
     fun add(slugCommented: String, email: String, comment: Comment): Comment? {
-        var commentId = 0L
         var user: User? = null
-        transaction(Database.connect(dataSource)) {
+        return transaction(Database.connect(dataSource)) {
             user = Users.select { Users.email eq email }
                     .map { Users.toDomain(it) }.firstOrNull() ?: throw BadRequestResponse()
-            commentId = Comments.insertAndGetId { row ->
+            Comments.insertAndGetId { row ->
                 row[body] = comment.body
                 row[createdAt] = DateTime()
                 row[updatedAt] = DateTime()
                 row[slug] = slugCommented
                 row[author] = user?.id!!
             }.value
+        }.let { commentId ->
+            findById(commentId)?.copy(author = user)
         }
-        return findById(commentId)?.copy(author = user)
     }
 
     fun findBySlug(slug: String): List<Comment> {
-        val comments = mutableListOf<Comment>()
-        transaction(Database.connect(dataSource)) {
-            comments.addAll(
-                    Comments.join(Users, JoinType.INNER, additionalConstraint = { Comments.author eq Users.id })
-                            .select { Comments.slug eq slug }
-                            .map { Comments.toDomain(it, Users.toDomain(it)) }
-            )
+        return transaction(Database.connect(dataSource)) {
+            Comments.join(Users, JoinType.INNER, additionalConstraint = { Comments.author eq Users.id })
+                    .select { Comments.slug eq slug }
+                    .map { Comments.toDomain(it, Users.toDomain(it)) }
         }
-        return comments
     }
 
     fun delete(id: Long, slug: String) {
