@@ -68,7 +68,7 @@ class ProfileControllerTest {
         http.loginAndSetTokenHeader(email, password)
 
         val username = "celeb_username"
-        val response = http.delete<ProfileDTO>("/api/profiles/$username/follow")
+        val response = http.deleteWithResponseBody<ProfileDTO>("/api/profiles/$username/follow")
 
         assertEquals(response.status, HttpStatus.OK_200)
         assertEquals(response.body.profile?.username, username)

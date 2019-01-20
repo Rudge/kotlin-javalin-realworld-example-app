@@ -6,10 +6,13 @@
 
 package io.javalin.util
 
+import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import io.javalin.core.util.Header
 import io.javalin.json.JavalinJson
+import io.realworld.app.domain.Article
+import io.realworld.app.domain.ArticleDTO
 import io.realworld.app.domain.User
 import io.realworld.app.domain.UserDTO
 
@@ -44,10 +47,10 @@ class HttpUtil(port: Int) {
     inline fun <reified T> put(path: String, body: Any) =
             Unirest.put(origin + path).headers(headers).body(body).asObject(T::class.java)
 
-    inline fun <reified T> delete(path: String) =
+    inline fun <reified T> deleteWithResponseBody(path: String) =
             Unirest.delete(origin + path).headers(headers).asObject(T::class.java)
 
-    fun deleteWithoutBody(path: String) =
+    fun delete(path: String) =
             Unirest.delete(origin + path).headers(headers).asString()
 
     fun loginAndSetTokenHeader(email: String, password: String) {
@@ -60,5 +63,24 @@ class HttpUtil(port: Int) {
         val userDTO = UserDTO(User(email = email, password = password, username = username))
         val response = post<UserDTO>("/api/users", userDTO)
         return response.body
+    }
+
+    fun createUser(userEmail: String = "user@valid_user_mail.com", username: String = "user_name_test"): UserDTO {
+        val password = "password"
+        val user = registerUser(userEmail, password, username)
+        loginAndSetTokenHeader(userEmail, password)
+        return user
+    }
+
+    fun createArticle(article: Article): HttpResponse<ArticleDTO> {
+        createUser()
+        return post<ArticleDTO>("/api/articles", ArticleDTO(article))
+    }
+
+    fun createArticle(): HttpResponse<ArticleDTO> {
+        return createArticle(Article(title = "How to train your dragon",
+                description = "Ever wonder how?",
+                body = "Very carefully.",
+                tagList = listOf("dragons", "training")))
     }
 }
