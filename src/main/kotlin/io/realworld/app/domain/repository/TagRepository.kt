@@ -16,7 +16,6 @@ class TagRepository(private val dataSource: DataSource) {
     init {
         transaction(Database.connect(dataSource)) {
             SchemaUtils.create(Tags)
-            SchemaUtils.create(Favorites)
         }
     }
 
