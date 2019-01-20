@@ -8,6 +8,7 @@ import io.javalin.Javalin
 import io.javalin.NotFoundResponse
 import io.javalin.UnauthorizedResponse
 import org.eclipse.jetty.http.HttpStatus
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.slf4j.LoggerFactory
 
 internal data class ErrorResponse(val errors: Map<String, List<String?>>)
@@ -19,6 +20,11 @@ object ErrorExceptionMapping {
         app.exception(Exception::class.java) { e, ctx ->
             LOG.error("Exception occurred for req -> ${ctx.url()}", e)
             val error = ErrorResponse(mapOf("Unknow Error" to listOf(e.message ?: "Error occurred!")))
+            ctx.json(error).status(HttpStatus.INTERNAL_SERVER_ERROR_500)
+        }
+        app.exception(ExposedSQLException::class.java) { e, ctx ->
+            LOG.error("Exception occurred for req -> ${ctx.url()}", e)
+            val error = ErrorResponse(mapOf("Unknow Error" to listOf("Error occurred!")))
             ctx.json(error).status(HttpStatus.INTERNAL_SERVER_ERROR_500)
         }
         app.exception(BadRequestResponse::class.java) { _, ctx ->

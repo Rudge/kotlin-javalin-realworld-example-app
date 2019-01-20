@@ -44,7 +44,7 @@ class Router(private val userController: UserController,
                 path(":slug") {
                     path("comments") {
                         post(commentController::add, roles(Roles.AUTHENTICATED))
-                        get(commentController::get, rolesOptionalAuthenticated)
+                        get(commentController::findBySlug, rolesOptionalAuthenticated)
                         delete(":id", commentController::delete, roles(Roles.AUTHENTICATED))
                     }
                     path("favorite") {
