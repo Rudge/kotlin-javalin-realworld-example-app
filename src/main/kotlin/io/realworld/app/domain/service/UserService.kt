@@ -35,7 +35,7 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
 
     fun getByEmail(email: String?): User {
         if (email.isNullOrBlank()) throw BadRequestResponse()
-        val user = userRepository.findByEmail(email!!)
+        val user = userRepository.findByEmail(email)
         user ?: throw NotFoundResponse()
         return user.copy(token = generateJwtToken(user))
     }

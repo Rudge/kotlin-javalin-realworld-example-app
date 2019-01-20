@@ -14,9 +14,9 @@ class ArticleService(private val articleRepository: ArticleRepository,
     fun findBy(tag: String?, author: String?, favorited: String?, limit: Int, offset: Int):
             List<Article> {
         return when {
-            !tag.isNullOrBlank() -> articleRepository.findByTag(tag!!, limit, offset)
-            !author.isNullOrBlank() -> articleRepository.findByAuthor(author!!, limit, offset)
-            !favorited.isNullOrBlank() -> articleRepository.findByFavorited(favorited!!, limit, offset)
+            !tag.isNullOrBlank() -> articleRepository.findByTag(tag, limit, offset)
+            !author.isNullOrBlank() -> articleRepository.findByAuthor(author, limit, offset)
+            !favorited.isNullOrBlank() -> articleRepository.findByFavorited(favorited, limit, offset)
             else -> articleRepository.findAll(limit, offset)
         }
     }
