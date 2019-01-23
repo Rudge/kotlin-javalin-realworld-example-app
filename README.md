@@ -1,4 +1,5 @@
 [![Travis](https://img.shields.io/travis/Rudge/kotlin-javalin-realworld-example-app.svg)](https://travis-ci.org/Rudge/kotlin-javalin-realworld-example-app/builds)
+[![BCH compliance](https://bettercodehub.com/edge/badge/Rudge/kotlin-javalin-realworld-example-app?branch=master)](https://bettercodehub.com/)
 
 # ![RealWorld Example App](logo.png)
 
