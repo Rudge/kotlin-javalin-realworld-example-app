@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5b6503dfa3024a0dbbf173e333f80bcf)](https://app.codacy.com/app/Rudge/kotlin-javalin-realworld-example-app?utm_source=github.com&utm_medium=referral&utm_content=Rudge/kotlin-javalin-realworld-example-app&utm_campaign=Badge_Grade_Dashboard)
 [![Travis](https://img.shields.io/travis/Rudge/kotlin-javalin-realworld-example-app.svg)](https://travis-ci.org/Rudge/kotlin-javalin-realworld-example-app/builds)
 
 # ![RealWorld Example App](logo.png)
