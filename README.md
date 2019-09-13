@@ -64,15 +64,17 @@ You need just JVM installed.
 
 The server is configured to start on [7000](http://localhost:7000/api) with `api` context, but you can change in `koin.properties`.
 
-Build:
+#### Build:
 > ./gradlew clean build
 
-Start the server:
+#### Start the server:
 > ./gradlew run
 
 In the project have the [spec-api](https://github.com/Rudge/kotlin-javalin-realworld-example-app/tree/master/spec-api) with the README and collections to execute backend tests specs [realworld](https://github.com/gothinkster/realworld).
 
-Execute tests and start the server:
+You can access the h2-console at [console](http://localhost:8082/).
+
+#### Execute tests and start the server:
 
 > ./gradlew run & APIURL=http://localhost:7000/api ./spec-api/run-api-tests.sh
 

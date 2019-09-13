@@ -8,7 +8,6 @@ import io.javalin.json.JavalinJackson
 import io.realworld.app.config.ModulesConfig.allModules
 import io.realworld.app.web.ErrorExceptionMapping
 import io.realworld.app.web.Router
-import org.h2.tools.Server
 import org.koin.core.KoinProperties
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.StandAloneContext
@@ -30,7 +29,6 @@ class AppConfig : KoinComponent {
                             .contextPath(getProperty("context"))
                             .event(JavalinEvent.SERVER_STOPPING) {
                                 StandAloneContext.stopKoin()
-                                Server.createPgServer().stop()
                             }
                     authConfig.configure(app)
                     router.register(app)
