@@ -6,6 +6,7 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.apibuilder.ApiBuilder.put
+import io.javalin.core.util.SwaggerRenderer
 import io.javalin.security.SecurityUtil.roles
 import io.realworld.app.config.Roles
 import io.realworld.app.web.controllers.ArticleController
@@ -15,11 +16,13 @@ import io.realworld.app.web.controllers.TagController
 import io.realworld.app.web.controllers.UserController
 import org.koin.standalone.KoinComponent
 
-class Router(private val userController: UserController,
-             private val profileController: ProfileController,
-             private val articleController: ArticleController,
-             private val commentController: CommentController,
-             private val tagController: TagController) : KoinComponent {
+class Router(
+    private val userController: UserController,
+    private val profileController: ProfileController,
+    private val articleController: ArticleController,
+    private val commentController: CommentController,
+    private val tagController: TagController
+) : KoinComponent {
 
     fun register(app: Javalin) {
         val rolesOptionalAuthenticated = roles(Roles.ANYONE, Roles.AUTHENTICATED)
@@ -61,6 +64,7 @@ class Router(private val userController: UserController,
             path("tags") {
                 get(tagController::get, rolesOptionalAuthenticated)
             }
+            get("", SwaggerRenderer("swagger/api.yaml"), rolesOptionalAuthenticated)
         }
     }
 }
