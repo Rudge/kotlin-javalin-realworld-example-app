@@ -36,7 +36,8 @@ class AppConfig : KoinComponent {
                 enableWebjars()
                 enableCorsForAllOrigins()
                 contextPath = getProperty("context")
-                registerPlugin(getConfiguredOpenApiPlugin())
+                addStaticFiles("/swagger")
+                addSinglePageRoot("","/swagger/swagger-ui.html")
                 server {
                     Server(getProperty("server_port") as Int)
                 }
@@ -61,22 +62,5 @@ class AppConfig : KoinComponent {
                         .configure(SerializationFeature.WRITE_DATES_WITH_ZONE_ID, true)
         )
     }
-
-    fun getConfiguredOpenApiPlugin() = OpenApiPlugin(
-            OpenApiOptions(
-                    Info().apply {
-                        title("Conduit")
-                        version("1.0")
-                        description(
-                                "|-\n" +
-                                        "    Collection for testing the Conduit API\n" +
-                                        "    https://github.com/Rudge/kotlin-javalin-realworld-example-app")
-                    }
-            ).apply {
-                path("/swagger-docs") // endpoint for OpenAPI json
-                swagger(SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
-                roles(roles(Roles.ANYONE, Roles.AUTHENTICATED))
-            }
-    )
 }
 
