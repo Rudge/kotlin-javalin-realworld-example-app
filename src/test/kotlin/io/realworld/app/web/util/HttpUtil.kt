@@ -10,7 +10,7 @@ import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import io.javalin.core.util.Header
-import io.javalin.json.JavalinJson
+import io.javalin.plugin.json.JavalinJson
 import io.realworld.app.domain.Article
 import io.realworld.app.domain.ArticleDTO
 import io.realworld.app.domain.User

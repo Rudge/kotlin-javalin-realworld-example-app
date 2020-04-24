@@ -27,7 +27,7 @@ class CommentController(private val commentService: CommentService) {
 
     fun delete(ctx: Context) {
         val slug = ctx.pathParam<String>("slug").get()
-        val id = ctx.pathParam<Long>("slug").get()
+        val id = ctx.pathParam<Long>("id").get()
         commentService.delete(id, slug)
     }
 
