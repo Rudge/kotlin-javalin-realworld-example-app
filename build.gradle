@@ -2,9 +2,9 @@ group 'io.realworld'
 version '1.0-SNAPSHOT'
 
 ext {
-    javalin_version = "2.6.0"
-    jackson_version = "2.9.7"
-    slf4j_version = "1.7.25"
+    javalin_version = "3.8.0"
+    jackson_version = "2.10.1"
+    slf4j_version = "1.7.28"
     koin_version = "1.0.2"
     junit_version = "4.12"
     unirest_version = "1.4.9"
@@ -13,7 +13,8 @@ ext {
     h2_version = "1.4.197"
     exposed_version = "0.11.1"
     slugify_version = "2.1.+"
-    swagger_version = "3.17.6"
+    swagger_version = "3.24.3"
+    swagger_core_version = "2.0.9"
 }
 
 buildscript {
@@ -51,6 +52,7 @@ dependencies {
     compile "org.jetbrains.exposed:exposed:$exposed_version"
     compile "com.github.slugify:slugify:$slugify_version"
     compile "org.webjars:swagger-ui:$swagger_version"
+    compile "io.swagger.core.v3:swagger-core:$swagger_core_version"
 
     testCompile "junit:junit:$junit_version"
     testCompile "com.mashape.unirest:unirest-java:$unirest_version"
