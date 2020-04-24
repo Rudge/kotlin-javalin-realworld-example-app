@@ -6,8 +6,7 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.apibuilder.ApiBuilder.put
-import io.javalin.core.util.SwaggerRenderer
-import io.javalin.security.SecurityUtil.roles
+import io.javalin.core.security.SecurityUtil.roles
 import io.realworld.app.config.Roles
 import io.realworld.app.web.controllers.ArticleController
 import io.realworld.app.web.controllers.CommentController
@@ -64,7 +63,7 @@ class Router(
             path("tags") {
                 get(tagController::get, rolesOptionalAuthenticated)
             }
-            get("", SwaggerRenderer("swagger/api.yaml"), rolesOptionalAuthenticated)
+            //get("", SwaggerRenderer("swagger/api.yaml"), rolesOptionalAuthenticated)
         }
     }
 }

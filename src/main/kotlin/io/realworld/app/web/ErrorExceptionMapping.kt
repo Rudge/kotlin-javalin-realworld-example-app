@@ -1,12 +1,8 @@
 package io.realworld.app.web
 
 import com.auth0.jwt.exceptions.JWTVerificationException
-import io.javalin.BadRequestResponse
-import io.javalin.ForbiddenResponse
-import io.javalin.HttpResponseException
 import io.javalin.Javalin
-import io.javalin.NotFoundResponse
-import io.javalin.UnauthorizedResponse
+import io.javalin.http.*
 import org.eclipse.jetty.http.HttpStatus
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.slf4j.LoggerFactory

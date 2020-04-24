@@ -2,7 +2,7 @@ package io.realworld.app.utils
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
-import io.javalin.security.Role
+import io.javalin.core.security.Role
 import io.realworld.app.domain.User
 import java.util.*
 

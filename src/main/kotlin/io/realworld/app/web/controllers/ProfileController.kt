@@ -1,12 +1,12 @@
 package io.realworld.app.web.controllers
 
-import io.javalin.Context
+import io.javalin.http.Context
 import io.realworld.app.domain.ProfileDTO
 import io.realworld.app.domain.service.UserService
 
 class ProfileController(private val userService: UserService) {
     fun get(ctx: Context) {
-        ctx.validatedPathParam("username").getOrThrow().also { usernameFollowing ->
+        ctx.pathParam<String>("username").get().also { usernameFollowing ->
             userService.getProfileByUsername(ctx.attribute("email")!!, usernameFollowing).also { profile ->
                 ctx.json(ProfileDTO(profile))
             }
@@ -14,7 +14,7 @@ class ProfileController(private val userService: UserService) {
     }
 
     fun follow(ctx: Context) {
-        ctx.validatedPathParam("username").getOrThrow().also { usernameToFollow ->
+        ctx.pathParam<String>("username").get().also { usernameToFollow ->
             userService.follow(ctx.attribute("email")!!, usernameToFollow).also { profile ->
                 ctx.json(ProfileDTO(profile))
             }
@@ -22,7 +22,7 @@ class ProfileController(private val userService: UserService) {
     }
 
     fun unfollow(ctx: Context) {
-        ctx.validatedPathParam("username").getOrThrow().also { usernameToUnfollow ->
+        ctx.pathParam<String>("username").get().also { usernameToUnfollow ->
             userService.unfollow(ctx.attribute("email")!!, usernameToUnfollow).also { profile ->
                 ctx.json(ProfileDTO(profile))
             }

@@ -1,16 +1,16 @@
 package io.realworld.app.web.controllers
 
-import io.javalin.Context
+import io.javalin.http.Context
 import io.realworld.app.domain.CommentDTO
 import io.realworld.app.domain.CommentsDTO
 import io.realworld.app.domain.service.CommentService
 
 class CommentController(private val commentService: CommentService) {
     fun add(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug").getOrThrow()
-        ctx.validatedBody<CommentDTO>()
+        val slug = ctx.pathParam<String>("slug").get()
+        ctx.bodyValidator<CommentDTO>()
                 .check({ !it.comment?.body.isNullOrBlank() })
-                .getOrThrow().apply {
+                .get().apply {
                     commentService.add(slug, ctx.attribute("email")!!, this.comment!!).also {
                         ctx.json(CommentDTO(it))
                     }
@@ -18,7 +18,7 @@ class CommentController(private val commentService: CommentService) {
     }
 
     fun findBySlug(ctx: Context) {
-        ctx.validatedPathParam("slug").getOrThrow().apply {
+        ctx.pathParam<String>("slug").get().apply {
             commentService.findBySlug(this).also { comments ->
                 ctx.json(CommentsDTO(comments))
             }
@@ -26,8 +26,8 @@ class CommentController(private val commentService: CommentService) {
     }
 
     fun delete(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug").getOrThrow()
-        val id = ctx.validatedPathParam("id").asLong().getOrThrow()
+        val slug = ctx.pathParam<String>("slug").get()
+        val id = ctx.pathParam<Long>("slug").get()
         commentService.delete(id, slug)
     }
 
