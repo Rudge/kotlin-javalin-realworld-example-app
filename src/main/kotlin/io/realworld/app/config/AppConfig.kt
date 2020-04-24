@@ -3,10 +3,17 @@ package io.realworld.app.config
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.Javalin
+import io.javalin.core.plugin.Plugin
+import io.javalin.core.security.SecurityUtil.roles
 import io.javalin.plugin.json.JavalinJackson
+import io.javalin.plugin.openapi.OpenApiOptions
+import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.realworld.app.config.ModulesConfig.allModules
 import io.realworld.app.web.ErrorExceptionMapping
 import io.realworld.app.web.Router
+import io.swagger.v3.oas.models.info.Info
+import org.eclipse.jetty.server.Server
 import org.koin.core.KoinProperties
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.StandAloneContext
@@ -23,24 +30,26 @@ class AppConfig : KoinComponent {
                 allModules,
                 KoinProperties(true, true)
         )
-        return Javalin.create()
-                .also { app ->
-                    this.configureMapper()
-                    app.config!!.apply {
-                        this.enableWebjars()
-                        this.enableCorsForAllOrigins()
-                        this.contextPath = getProperty("context")
-                    }
-                    app.events {
-                        it.serverStopping {
-                            StandAloneContext.stopKoin()
-                        }
-                    }
-                    authConfig.configure(app)
-                    router.register(app)
-                    ErrorExceptionMapping.register(app)
-                    app.server()!!.serverPort = getProperty("server_port")
+        this.configureMapper()
+        val app = Javalin.create { config ->
+            config.apply {
+                enableWebjars()
+                enableCorsForAllOrigins()
+                contextPath = getProperty("context")
+                registerPlugin(getConfiguredOpenApiPlugin())
+                server {
+                    Server(getProperty("server_port") as Int)
                 }
+            }
+        }.events {
+            it.serverStopping {
+                StandAloneContext.stopKoin()
+            }
+        }
+        authConfig.configure(app)
+        router.register(app)
+        ErrorExceptionMapping.register(app)
+        return app
     }
 
     private fun configureMapper() {
@@ -52,5 +61,22 @@ class AppConfig : KoinComponent {
                         .configure(SerializationFeature.WRITE_DATES_WITH_ZONE_ID, true)
         )
     }
+
+    fun getConfiguredOpenApiPlugin() = OpenApiPlugin(
+            OpenApiOptions(
+                    Info().apply {
+                        title("Conduit")
+                        version("1.0")
+                        description(
+                                "|-\n" +
+                                        "    Collection for testing the Conduit API\n" +
+                                        "    https://github.com/Rudge/kotlin-javalin-realworld-example-app")
+                    }
+            ).apply {
+                path("/swagger-docs") // endpoint for OpenAPI json
+                swagger(SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
+                roles(roles(Roles.ANYONE, Roles.AUTHENTICATED))
+            }
+    )
 }
 

@@ -63,7 +63,6 @@ class Router(
             path("tags") {
                 get(tagController::get, rolesOptionalAuthenticated)
             }
-            //get("", SwaggerRenderer("swagger/api.yaml"), rolesOptionalAuthenticated)
         }
     }
 }
