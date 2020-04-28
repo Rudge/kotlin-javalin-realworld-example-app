@@ -1,6 +1,6 @@
 package io.realworld.app.web.controllers
 
-import io.javalin.Context
+import io.javalin.http.Context
 import io.realworld.app.domain.ArticleDTO
 import io.realworld.app.domain.ArticlesDTO
 import io.realworld.app.domain.service.ArticleService
@@ -27,9 +27,9 @@ class ArticleController(private val articleService: ArticleService) {
     }
 
     fun get(ctx: Context) {
-        ctx.validatedPathParam("slug")
+        ctx.pathParam<String>("slug")
                 .check({ it.isNotBlank() })
-                .getOrThrow().also { slug ->
+                .get().also { slug ->
                     articleService.findBySlug(slug).apply {
                         ctx.json(ArticleDTO(this))
                     }
@@ -37,11 +37,11 @@ class ArticleController(private val articleService: ArticleService) {
     }
 
     fun create(ctx: Context) {
-        ctx.validatedBody<ArticleDTO>()
+        ctx.bodyValidator<ArticleDTO>()
                 .check({ !it.article?.title.isNullOrBlank() })
                 .check({ !it.article?.description.isNullOrBlank() })
                 .check({ !it.article?.body.isNullOrBlank() })
-                .getOrThrow().article?.also { article ->
+                .get().article?.also { article ->
             articleService.create(ctx.attribute("email"), article).apply {
                 ctx.json(ArticleDTO(this))
             }
@@ -49,10 +49,10 @@ class ArticleController(private val articleService: ArticleService) {
     }
 
     fun update(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug").getOrThrow()
-        ctx.validatedBody<ArticleDTO>()
+        val slug = ctx.pathParam<String>("slug").get()
+        ctx.bodyValidator<ArticleDTO>()
                 .check({ !it.article?.body.isNullOrBlank() })
-                .getOrThrow().article?.also { article ->
+                .get().article?.also { article ->
             articleService.update(slug, article).apply {
                 ctx.json(ArticleDTO(this))
             }
@@ -60,13 +60,13 @@ class ArticleController(private val articleService: ArticleService) {
     }
 
     fun delete(ctx: Context) {
-        ctx.validatedPathParam("slug").getOrThrow().also { slug ->
+        ctx.pathParam<String>("slug").get().also { slug ->
             articleService.delete(slug)
         }
     }
 
     fun favorite(ctx: Context) {
-        ctx.validatedPathParam("slug").getOrThrow().also { slug ->
+        ctx.pathParam<String>("slug").get().also { slug ->
             articleService.favorite(ctx.attribute("email"), slug).apply {
                 ctx.json(ArticleDTO(this))
             }
@@ -74,7 +74,7 @@ class ArticleController(private val articleService: ArticleService) {
     }
 
     fun unfavorite(ctx: Context) {
-        ctx.validatedPathParam("slug").getOrThrow().also { slug ->
+        ctx.pathParam<String>("slug").get().also { slug ->
             articleService.unfavorite(ctx.attribute("email"), slug).apply {
                 ctx.json(ArticleDTO(this))
             }

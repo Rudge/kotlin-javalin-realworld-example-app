@@ -1,6 +1,6 @@
 package io.realworld.app.domain.service
 
-import io.javalin.BadRequestResponse
+import io.javalin.http.BadRequestResponse
 import io.realworld.app.domain.Comment
 import io.realworld.app.domain.repository.CommentRepository
 

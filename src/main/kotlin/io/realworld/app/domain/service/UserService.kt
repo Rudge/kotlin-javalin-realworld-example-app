@@ -1,9 +1,9 @@
 package io.realworld.app.domain.service
 
-import io.javalin.BadRequestResponse
-import io.javalin.HttpResponseException
-import io.javalin.NotFoundResponse
-import io.javalin.UnauthorizedResponse
+import io.javalin.http.BadRequestResponse
+import io.javalin.http.HttpResponseException
+import io.javalin.http.NotFoundResponse
+import io.javalin.http.UnauthorizedResponse
 import io.realworld.app.config.Roles
 import io.realworld.app.domain.Profile
 import io.realworld.app.domain.User

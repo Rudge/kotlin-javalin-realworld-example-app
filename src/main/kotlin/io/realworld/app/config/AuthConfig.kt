@@ -1,10 +1,10 @@
 package io.realworld.app.config
 
 import com.auth0.jwt.interfaces.DecodedJWT
-import io.javalin.Context
-import io.javalin.ForbiddenResponse
 import io.javalin.Javalin
-import io.javalin.security.Role
+import io.javalin.core.security.Role
+import io.javalin.http.Context
+import io.javalin.http.ForbiddenResponse
 import io.realworld.app.utils.JwtProvider
 
 internal enum class Roles : Role {
@@ -15,7 +15,7 @@ private const val headerTokenName = "Authorization"
 
 class AuthConfig(private val jwtProvider: JwtProvider) {
     fun configure(app: Javalin) {
-        app.accessManager { handler, ctx, permittedRoles ->
+        app.config.accessManager { handler, ctx, permittedRoles ->
             val jwtToken = getJwtTokenHeader(ctx)
             val userRole = getUserRole(jwtToken) ?: Roles.ANYONE
             permittedRoles.takeIf { !it.contains(userRole) }?.apply { throw ForbiddenResponse() }

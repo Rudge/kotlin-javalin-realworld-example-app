@@ -1,6 +1,6 @@
 package io.realworld.app.web.controllers
 
-import io.javalin.Context
+import io.javalin.http.Context
 import io.realworld.app.domain.service.TagService
 
 class TagController(private val tagService: TagService) {

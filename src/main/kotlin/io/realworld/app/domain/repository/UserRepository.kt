@@ -1,6 +1,6 @@
 package io.realworld.app.domain.repository
 
-import io.javalin.NotFoundResponse
+import io.javalin.http.NotFoundResponse
 import io.realworld.app.domain.User
 import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.Column

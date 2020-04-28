@@ -1,9 +1,9 @@
 package io.realworld.app.domain.service
 
 import com.github.slugify.Slugify
-import io.javalin.BadRequestResponse
-import io.javalin.InternalServerErrorResponse
-import io.javalin.NotFoundResponse
+import io.javalin.http.BadRequestResponse
+import io.javalin.http.InternalServerErrorResponse
+import io.javalin.http.NotFoundResponse
 import io.realworld.app.domain.Article
 import io.realworld.app.domain.repository.ArticleRepository
 import io.realworld.app.domain.repository.UserRepository
