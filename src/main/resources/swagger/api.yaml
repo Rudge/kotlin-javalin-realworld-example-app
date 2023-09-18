@@ -1,0 +1,926 @@
+openapi: 3.0.0
+info:
+  title: Conduit
+  description: |-
+    Collection for testing the Conduit API
+    https://github.com/Rudge/kotlin-javalin-realworld-example-app
+  contact: {}
+  version: '1.0'
+servers:
+  - url: 'http://localhost:7000/api'
+    variables: {}
+paths:
+  /users:
+    post:
+      tags:
+        - Auth
+      summary: Register
+      operationId: Register
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              user:
+                email: '{{EMAIL}}'
+                password: '{{PASSWORD}}'
+                username: '{{USERNAME}}'
+        required: true
+        x-send-file-in-body: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /users/login:
+    post:
+      tags:
+        - Auth
+      summary: Login
+      operationId: Login
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              user:
+                email: '{{EMAIL}}'
+                password: '{{PASSWORD}}'
+        required: true
+        x-send-file-in-body: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /user:
+    get:
+      tags:
+        - Auth
+      summary: Current User
+      operationId: CurrentUser
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+    put:
+      tags:
+        - Auth
+      summary: Update User
+      operationId: UpdateUser
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+            example:
+              user:
+                email: '{{EMAIL}}'
+        required: true
+        x-send-file-in-body: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /articles:
+    get:
+      tags:
+        - Articles
+      summary: All Articles
+      operationId: AllArticles
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    post:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Create Article
+      operationId: CreateArticle
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateArticleRequest'
+            example:
+              article:
+                title: How to train your dragon
+                description: Ever wonder how?
+                body: Very carefully.
+                tagList:
+                  - dragons
+                  - training
+        required: true
+        x-send-file-in-body: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /articles/feed:
+    get:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Feed
+      operationId: Feed
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  '/articles/{slug}':
+    get:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Single Article by slug
+      operationId: SingleArticlebyslug
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: slug
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+    put:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Update Article
+      operationId: UpdateArticle
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: slug
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateArticleRequest'
+            example:
+              article:
+                body: With two hands
+        required: true
+        x-send-file-in-body: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+    delete:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Delete Article
+      operationId: DeleteArticle
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: slug
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  '/articles/{slug}/favorite':
+    post:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Favorite Article
+      operationId: FavoriteArticle
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: slug
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+    delete:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Unfavorite Article
+      operationId: UnfavoriteArticle
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: slug
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  '/articles/{slug}/comments':
+    post:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Create Comment for Article
+      operationId: CreateCommentforArticle
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: slug
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentforArticleRequest'
+            example:
+              comment:
+                body: Thank you so much!
+        required: true
+        x-send-file-in-body: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+    get:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: All Comments for Article
+      operationId: AllCommentsforArticle
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: slug
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  '/articles/{slug}/comments/{commentId}':
+    delete:
+      tags:
+        - 'Articles, Favorite, Comments'
+      summary: Delete Comment for Article
+      operationId: DeleteCommentforArticle
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: slug
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  '/profiles/celeb_{USERNAME}':
+    get:
+      tags:
+        - Profiles
+      summary: Profile
+      operationId: Profile
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: USERNAME
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  '/profiles/celeb_{USERNAME}/follow':
+    post:
+      tags:
+        - Profiles
+      summary: Follow Profile
+      operationId: FollowProfile
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: USERNAME
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowProfileRequest'
+            example:
+              user:
+                email: '{{EMAIL}}'
+        required: true
+        x-send-file-in-body: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+    delete:
+      tags:
+        - Profiles
+      summary: Unfollow Profile
+      operationId: UnfollowProfile
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+        - name: Authorization
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: 'Token {{token}}'
+        - name: USERNAME
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /tags:
+    get:
+      tags:
+        - Tags
+      summary: All Tags
+      operationId: AllTags
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/json
+        - name: X-Requested-With
+          in: header
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: XMLHttpRequest
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+components:
+  schemas:
+    RegisterRequest:
+      title: RegisterRequest
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      example:
+        user:
+          email: '{{EMAIL}}'
+          password: '{{PASSWORD}}'
+          username: '{{USERNAME}}'
+    User:
+      title: User
+      required:
+        - email
+        - password
+        - username
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+      example:
+        email: '{{EMAIL}}'
+        password: '{{PASSWORD}}'
+        username: '{{USERNAME}}'
+    LoginRequest:
+      title: LoginRequest
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User1'
+      example:
+        user:
+          email: '{{EMAIL}}'
+          password: '{{PASSWORD}}'
+    User1:
+      title: User1
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: '{{EMAIL}}'
+        password: '{{PASSWORD}}'
+    LoginandRememberTokenRequest:
+      title: LoginandRememberTokenRequest
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User1'
+      example:
+        user:
+          email: '{{EMAIL}}'
+          password: '{{PASSWORD}}'
+    UpdateUserRequest:
+      title: UpdateUserRequest
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User3'
+      example:
+        user:
+          email: '{{EMAIL}}'
+    User3:
+      title: User3
+      required:
+        - email
+      type: object
+      properties:
+        email:
+          type: string
+      example:
+        email: '{{EMAIL}}'
+    CreateArticleRequest:
+      title: CreateArticleRequest
+      required:
+        - article
+      type: object
+      properties:
+        article:
+          $ref: '#/components/schemas/Article'
+      example:
+        article:
+          title: How to train your dragon
+          description: Ever wonder how?
+          body: Very carefully.
+          tagList:
+            - dragons
+            - training
+    Article:
+      title: Article
+      required:
+        - title
+        - description
+        - body
+        - tagList
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+      example:
+        title: How to train your dragon
+        description: Ever wonder how?
+        body: Very carefully.
+        tagList:
+          - dragons
+          - training
+    UpdateArticleRequest:
+      title: UpdateArticleRequest
+      required:
+        - article
+      type: object
+      properties:
+        article:
+          $ref: '#/components/schemas/Article1'
+      example:
+        article:
+          body: With two hands
+    Article1:
+      title: Article1
+      required:
+        - body
+      type: object
+      properties:
+        body:
+          type: string
+      example:
+        body: With two hands
+    CreateCommentforArticleRequest:
+      title: CreateCommentforArticleRequest
+      required:
+        - comment
+      type: object
+      properties:
+        comment:
+          $ref: '#/components/schemas/Comment'
+      example:
+        comment:
+          body: Thank you so much!
+    Comment:
+      title: Comment
+      required:
+        - body
+      type: object
+      properties:
+        body:
+          type: string
+      example:
+        body: Thank you so much!
+    RegisterCelebRequest:
+      title: RegisterCelebRequest
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      example:
+        user:
+          email: 'celeb_{{EMAIL}}'
+          password: '{{PASSWORD}}'
+          username: 'celeb_{{USERNAME}}'
+    FollowProfileRequest:
+      title: FollowProfileRequest
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User3'
+      example:
+        user:
+          email: '{{EMAIL}}'
+tags:
+  - name: Auth
+  - name: Articles
+  - name: 'Articles, Favorite, Comments'
+  - name: Profiles
+  - name: Tags
