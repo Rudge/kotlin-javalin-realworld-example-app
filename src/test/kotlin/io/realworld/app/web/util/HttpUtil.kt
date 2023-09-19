@@ -36,22 +36,22 @@ class HttpUtil(port: Int) {
     val origin: String = "http://localhost:$port"
 
     inline fun <reified T> post(path: String) =
-            Unirest.post(origin + path).headers(headers).asObject(T::class.java)
+        Unirest.post(origin + path).headers(headers).asObject(T::class.java)
 
     inline fun <reified T> post(path: String, body: Any) =
-            Unirest.post(origin + path).headers(headers).body(body).asObject(T::class.java)
+        Unirest.post(origin + path).headers(headers).body(body).asObject(T::class.java)
 
     inline fun <reified T> get(path: String, params: Map<String, Any>? = null) =
-            Unirest.get(origin + path).headers(headers).queryString(params).asObject(T::class.java)
+        Unirest.get(origin + path).headers(headers).queryString(params).asObject(T::class.java)
 
     inline fun <reified T> put(path: String, body: Any) =
-            Unirest.put(origin + path).headers(headers).body(body).asObject(T::class.java)
+        Unirest.put(origin + path).headers(headers).body(body).asObject(T::class.java)
 
     inline fun <reified T> deleteWithResponseBody(path: String) =
-            Unirest.delete(origin + path).headers(headers).asObject(T::class.java)
+        Unirest.delete(origin + path).headers(headers).asObject(T::class.java)
 
     fun delete(path: String) =
-            Unirest.delete(origin + path).headers(headers).asString()
+        Unirest.delete(origin + path).headers(headers).asString()
 
     fun loginAndSetTokenHeader(email: String, password: String) {
         val userDTO = UserDTO(User(email = email, password = password))
@@ -78,9 +78,13 @@ class HttpUtil(port: Int) {
     }
 
     fun createArticle(): HttpResponse<ArticleDTO> {
-        return createArticle(Article(title = "How to train your dragon",
+        return createArticle(
+            Article(
+                title = "How to train your dragon",
                 description = "Ever wonder how?",
                 body = "Very carefully.",
-                tagList = listOf("dragons", "training")))
+                tagList = listOf("dragons", "training"),
+            ),
+        )
     }
 }

@@ -17,5 +17,4 @@ class CommentService(private val commentRepository: CommentRepository) {
     fun delete(id: Long, slug: String) {
         commentRepository.delete(id, slug)
     }
-
 }

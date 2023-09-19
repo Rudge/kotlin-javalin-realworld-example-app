@@ -30,10 +30,12 @@ class TagControllerTest {
 
     @Test
     fun `get all tags`() {
-        val article = Article(title = "How to train your dragon",
-                description = "Ever wonder how?",
-                body = "Very carefully.",
-                tagList = listOf("dragons", "training"))
+        val article = Article(
+            title = "How to train your dragon",
+            description = "Ever wonder how?",
+            body = "Very carefully.",
+            tagList = listOf("dragons", "training"),
+        )
         val email = "create_article@valid_email.com"
         val password = "Test"
         http.registerUser(email, password, "user_name_test")

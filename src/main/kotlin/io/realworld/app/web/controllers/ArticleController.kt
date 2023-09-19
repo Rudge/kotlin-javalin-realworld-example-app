@@ -6,7 +6,7 @@ import io.realworld.app.domain.ArticlesDTO
 import io.realworld.app.domain.service.ArticleService
 
 class ArticleController(private val articleService: ArticleService) {
-    
+
     fun findBy(ctx: Context) {
         val tag = ctx.queryParam("tag")
         val author = ctx.queryParam("author")
@@ -28,20 +28,20 @@ class ArticleController(private val articleService: ArticleService) {
 
     fun get(ctx: Context) {
         ctx.pathParam<String>("slug")
-                .check({ it.isNotBlank() })
-                .get().also { slug ->
-                    articleService.findBySlug(slug).apply {
-                        ctx.json(ArticleDTO(this))
-                    }
+            .check({ it.isNotBlank() })
+            .get().also { slug ->
+                articleService.findBySlug(slug).apply {
+                    ctx.json(ArticleDTO(this))
                 }
+            }
     }
 
     fun create(ctx: Context) {
         ctx.bodyValidator<ArticleDTO>()
-                .check({ !it.article?.title.isNullOrBlank() })
-                .check({ !it.article?.description.isNullOrBlank() })
-                .check({ !it.article?.body.isNullOrBlank() })
-                .get().article?.also { article ->
+            .check({ !it.article?.title.isNullOrBlank() })
+            .check({ !it.article?.description.isNullOrBlank() })
+            .check({ !it.article?.body.isNullOrBlank() })
+            .get().article?.also { article ->
             articleService.create(ctx.attribute("email"), article).apply {
                 ctx.json(ArticleDTO(this))
             }
@@ -51,8 +51,8 @@ class ArticleController(private val articleService: ArticleService) {
     fun update(ctx: Context) {
         val slug = ctx.pathParam<String>("slug").get()
         ctx.bodyValidator<ArticleDTO>()
-                .check({ !it.article?.body.isNullOrBlank() })
-                .get().article?.also { article ->
+            .check({ !it.article?.body.isNullOrBlank() })
+            .get().article?.also { article ->
             articleService.update(slug, article).apply {
                 ctx.json(ArticleDTO(this))
             }

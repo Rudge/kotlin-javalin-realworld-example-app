@@ -6,6 +6,5 @@ object Cipher {
     val algorithm = Algorithm.HMAC256("something-very-secret-here")
 
     fun encrypt(data: String?): ByteArray =
-            algorithm.sign(data?.toByteArray())
-
+        algorithm.sign(data?.toByteArray())
 }
