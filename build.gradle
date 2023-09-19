@@ -68,5 +68,8 @@ compileKotlin {
     }
 }
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions {
+        jvmTarget = "1.8"
+        languageVersion = "1.4"
+    }
 }
