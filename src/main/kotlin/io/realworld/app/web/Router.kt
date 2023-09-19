@@ -20,7 +20,7 @@ class Router(
     private val profileController: ProfileController,
     private val articleController: ArticleController,
     private val commentController: CommentController,
-    private val tagController: TagController
+    private val tagController: TagController,
 ) : KoinComponent {
 
     fun register(app: Javalin) {

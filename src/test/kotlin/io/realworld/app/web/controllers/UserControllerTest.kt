@@ -31,8 +31,10 @@ class UserControllerTest {
 
     @Test
     fun `invalid login without pass valid body`() {
-        val response = http.post<ErrorResponse>("/api/users/login",
-                UserDTO())
+        val response = http.post<ErrorResponse>(
+            "/api/users/login",
+            UserDTO(),
+        )
 
         assertEquals(response.status, HttpStatus.UNPROCESSABLE_ENTITY_422)
         assertTrue(response.body.errors["body"]!!.contains("can't be empty or invalid"))
@@ -53,8 +55,14 @@ class UserControllerTest {
 
     @Test
     fun `success register user`() {
-        val userDTO = UserDTO(User(email = "success_register@valid_email.com", password = "Test", username =
-        "username_test"))
+        val userDTO = UserDTO(
+            User(
+                email = "success_register@valid_email.com",
+                password = "Test",
+                username =
+                "username_test",
+            ),
+        )
         val response = http.post<UserDTO>("/api/users", userDTO)
 
         assertEquals(response.status, HttpStatus.OK_200)

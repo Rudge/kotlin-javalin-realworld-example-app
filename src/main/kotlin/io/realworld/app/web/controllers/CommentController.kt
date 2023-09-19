@@ -9,12 +9,12 @@ class CommentController(private val commentService: CommentService) {
     fun add(ctx: Context) {
         val slug = ctx.pathParam<String>("slug").get()
         ctx.bodyValidator<CommentDTO>()
-                .check({ !it.comment?.body.isNullOrBlank() })
-                .get().apply {
-                    commentService.add(slug, ctx.attribute("email")!!, this.comment!!).also {
-                        ctx.json(CommentDTO(it))
-                    }
+            .check({ !it.comment?.body.isNullOrBlank() })
+            .get().apply {
+                commentService.add(slug, ctx.attribute("email")!!, this.comment!!).also {
+                    ctx.json(CommentDTO(it))
                 }
+            }
     }
 
     fun findBySlug(ctx: Context) {
@@ -30,5 +30,4 @@ class CommentController(private val commentService: CommentService) {
         val id = ctx.pathParam<Long>("id").get()
         commentService.delete(id, slug)
     }
-
 }

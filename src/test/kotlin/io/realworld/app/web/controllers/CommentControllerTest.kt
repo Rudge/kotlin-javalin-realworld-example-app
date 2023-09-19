@@ -33,8 +33,10 @@ class CommentControllerTest {
         val responseArticle = http.createArticle()
 
         val comment = Comment(body = "Very carefully.")
-        val response = http.post<CommentDTO>("/api/articles/${responseArticle.body.article?.slug}/comments",
-                CommentDTO(comment))
+        val response = http.post<CommentDTO>(
+            "/api/articles/${responseArticle.body.article?.slug}/comments",
+            CommentDTO(comment),
+        )
 
         assertEquals(response.status, HttpStatus.OK_200)
         assertEquals(response.body.comment?.body, comment.body)
@@ -47,8 +49,10 @@ class CommentControllerTest {
         val slug = responseArticle.body.article?.slug
 
         val comment = Comment(body = "Very carefully.")
-        http.post<CommentDTO>("/api/articles/$slug/comments",
-                CommentDTO(comment))
+        http.post<CommentDTO>(
+            "/api/articles/$slug/comments",
+            CommentDTO(comment),
+        )
 
         val response = http.get<CommentsDTO>("/api/articles/$slug/comments")
 
@@ -64,8 +68,10 @@ class CommentControllerTest {
         val slug = responseArticle.body.article?.slug
 
         val comment = Comment(body = "Very carefully.")
-        val responseAddComment = http.post<CommentDTO>("/api/articles/$slug/comments",
-                CommentDTO(comment))
+        val responseAddComment = http.post<CommentDTO>(
+            "/api/articles/$slug/comments",
+            CommentDTO(comment),
+        )
 
         val response = http.delete("/api/articles/$slug/comments/${responseAddComment.body.comment?.id}")
 

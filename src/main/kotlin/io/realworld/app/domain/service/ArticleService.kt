@@ -8,11 +8,13 @@ import io.realworld.app.domain.Article
 import io.realworld.app.domain.repository.ArticleRepository
 import io.realworld.app.domain.repository.UserRepository
 
-class ArticleService(private val articleRepository: ArticleRepository,
-                     private val userRepository: UserRepository) {
+class ArticleService(
+    private val articleRepository: ArticleRepository,
+    private val userRepository: UserRepository,
+) {
 
     fun findBy(tag: String?, author: String?, favorited: String?, limit: Int, offset: Int):
-            List<Article> {
+        List<Article> {
         return when {
             !tag.isNullOrBlank() -> articleRepository.findByTag(tag, limit, offset)
             !author.isNullOrBlank() -> articleRepository.findByAuthor(author, limit, offset)
@@ -26,8 +28,9 @@ class ArticleService(private val articleRepository: ArticleRepository,
         return userRepository.findByEmail(email).let { author ->
             author ?: throw BadRequestResponse("invalid user to create article")
             articleRepository.create(
-                    article.copy(slug = Slugify().slugify(article.title), author = author))
-                    ?: throw InternalServerErrorResponse("Error to create article.")
+                article.copy(slug = Slugify().slugify(article.title), author = author),
+            )
+                ?: throw InternalServerErrorResponse("Error to create article.")
         }
     }
 
@@ -52,9 +55,9 @@ class ArticleService(private val articleRepository: ArticleRepository,
         return userRepository.findByEmail(email).let { user ->
             user ?: throw BadRequestResponse()
             articleRepository.favorite(user.id!!, slug)
-                    .let { favoritesCount ->
-                        article.copy(favorited = true, favoritesCount = favoritesCount.toLong())
-                    }
+                .let { favoritesCount ->
+                    article.copy(favorited = true, favoritesCount = favoritesCount.toLong())
+                }
         }
     }
 
@@ -64,9 +67,9 @@ class ArticleService(private val articleRepository: ArticleRepository,
         return userRepository.findByEmail(email).let { user ->
             user ?: throw BadRequestResponse()
             articleRepository.unfavorite(user.id!!, slug)
-                    .let { favoritesCount ->
-                        article.copy(favorited = false, favoritesCount = favoritesCount.toLong())
-                    }
+                .let { favoritesCount ->
+                    article.copy(favorited = false, favoritesCount = favoritesCount.toLong())
+                }
         }
     }
 

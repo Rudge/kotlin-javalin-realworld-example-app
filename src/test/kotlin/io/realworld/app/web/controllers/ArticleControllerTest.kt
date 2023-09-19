@@ -132,10 +132,12 @@ class ArticleControllerTest {
 
     @Test
     fun `create article`() {
-        val article = Article(title = "Create How to train your dragon",
-                description = "Ever wonder how?",
-                body = "Very carefully.",
-                tagList = listOf("create_article"))
+        val article = Article(
+            title = "Create How to train your dragon",
+            description = "Ever wonder how?",
+            body = "Very carefully.",
+            tagList = listOf("create_article"),
+        )
         val response = http.createArticle(article)
         assertEquals(response.status, HttpStatus.OK_200)
         assertNotNull(response.body.article)
@@ -196,10 +198,12 @@ class ArticleControllerTest {
 
     @Test
     fun `favorite article by slug`() {
-        val article = Article(title = "slug test",
-                description = "Ever wonder how?",
-                body = "Very carefully.",
-                tagList = listOf("favorite"))
+        val article = Article(
+            title = "slug test",
+            description = "Ever wonder how?",
+            body = "Very carefully.",
+            tagList = listOf("favorite"),
+        )
         http.createArticle(article)
         val slug = "slug-test"
         val response = http.post<ArticleDTO>("/api/articles/$slug/favorite")
@@ -218,10 +222,12 @@ class ArticleControllerTest {
         val password = "Test"
         http.registerUser(email, password, "user_name_test")
         http.loginAndSetTokenHeader(email, password)
-        val article = Article(title = "slug test 2",
-                description = "Ever wonder how?",
-                body = "Very carefully.",
-                tagList = listOf("unfavorite"))
+        val article = Article(
+            title = "slug test 2",
+            description = "Ever wonder how?",
+            body = "Very carefully.",
+            tagList = listOf("unfavorite"),
+        )
         http.post<ArticleDTO>("/api/articles", ArticleDTO(article))
         val slug = "slug-test-2"
         val response = http.deleteWithResponseBody<ArticleDTO>("/api/articles/$slug/favorite")

@@ -26,7 +26,7 @@ class AuthConfig(private val jwtProvider: JwtProvider) {
 
     private fun getJwtTokenHeader(ctx: Context): DecodedJWT? {
         val tokenHeader = ctx.header(headerTokenName)?.substringAfter("Token")?.trim()
-                ?: return null
+            ?: return null
 
         return jwtProvider.decodeJWT(tokenHeader)
     }

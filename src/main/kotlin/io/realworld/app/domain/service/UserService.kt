@@ -18,8 +18,10 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
 
     fun create(user: User): User {
         userRepository.findByEmail(user.email).takeIf { it != null }?.apply {
-            throw HttpResponseException(HttpStatus.BAD_REQUEST_400,
-                    "Email already registered!")
+            throw HttpResponseException(
+                HttpStatus.BAD_REQUEST_400,
+                "Email already registered!",
+            )
         }
         userRepository.create(user.copy(password = String(base64Encoder.encode(Cipher.encrypt(user.password)))))
         return user.copy(token = generateJwtToken(user))
