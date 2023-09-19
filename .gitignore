@@ -47,6 +47,7 @@ build/
 .idea/libraries-with-intellij-classes.xml
 .idea/misc.xml
 .idea/protoeditor.xml
+.idea/
 node_modules/
 .rpt2_cache/
 libraries/tools/kotlin-test-js-runner/lib/
