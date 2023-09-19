@@ -27,12 +27,12 @@ internal object Users : LongIdTable() {
 
     fun toDomain(row: ResultRow): User {
         return User(
-                id = row[Users.id].value,
-                email = row[Users.email],
-                username = row[Users.username],
-                password = row[Users.password],
-                bio = row[Users.bio],
-                image = row[Users.image]
+            id = row[Users.id].value,
+            email = row[Users.email],
+            username = row[Users.username],
+            password = row[Users.password],
+            bio = row[Users.bio],
+            image = row[Users.image],
         )
     }
 }
@@ -53,16 +53,16 @@ class UserRepository(private val dataSource: DataSource) {
     fun findByEmail(email: String): User? {
         return transaction(Database.connect(dataSource)) {
             Users.select { Users.email eq email }
-                    .map { Users.toDomain(it) }
-                    .firstOrNull()
+                .map { Users.toDomain(it) }
+                .firstOrNull()
         }
     }
 
     fun findByUsername(username: String): User? {
         return transaction(Database.connect(dataSource)) {
             Users.select { Users.username eq username }
-                    .map { Users.toDomain(it) }
-                    .firstOrNull()
+                .map { Users.toDomain(it) }
+                .firstOrNull()
         }
     }
 
@@ -82,14 +82,18 @@ class UserRepository(private val dataSource: DataSource) {
         transaction(Database.connect(dataSource)) {
             Users.update({ Users.email eq email }) { row ->
                 row[Users.email] = user.email
-                if (user.username != null)
+                if (user.username != null) {
                     row[Users.username] = user.username
-                if (user.password != null)
+                }
+                if (user.password != null) {
                     row[Users.password] = user.password
-                if (user.bio != null)
+                }
+                if (user.bio != null) {
                     row[Users.bio] = user.bio
-                if (user.image != null)
+                }
+                if (user.image != null) {
                     row[Users.image] = user.image
+                }
             }
         }
         return findByEmail(user.email)
@@ -97,14 +101,17 @@ class UserRepository(private val dataSource: DataSource) {
 
     fun findIsFollowUser(email: String, userIdToFollow: Long): Boolean {
         return transaction(Database.connect(dataSource)) {
-            Users.join(Follows, JoinType.INNER,
-                    additionalConstraint = {
-                        Follows.user eq Users.id and (Follows.follower eq userIdToFollow)
-                    })
-                    .select {
-                        Users.email eq email
-                    }
-                    .count() > 0
+            Users.join(
+                Follows,
+                JoinType.INNER,
+                additionalConstraint = {
+                    Follows.user eq Users.id and (Follows.follower eq userIdToFollow)
+                },
+            )
+                .select {
+                    Users.email eq email
+                }
+                .count() > 0
         }
     }
 
