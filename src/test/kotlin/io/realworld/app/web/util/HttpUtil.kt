@@ -10,7 +10,6 @@ import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import io.javalin.core.util.Header
-import io.javalin.plugin.json.JavalinJson
 import io.realworld.app.domain.Article
 import io.realworld.app.domain.ArticleDTO
 import io.realworld.app.domain.User
@@ -19,15 +18,16 @@ import io.realworld.app.domain.UserDTO
 class HttpUtil(port: Int) {
     private val json = "application/json"
     val headers = mutableMapOf(Header.ACCEPT to json, Header.CONTENT_TYPE to json)
+    val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
 
     init {
         Unirest.setObjectMapper(object : ObjectMapper {
             override fun <T> readValue(value: String, valueType: Class<T>): T {
-                return JavalinJson.fromJson(value, valueType)
+                return objectMapper.readValue(value, valueType)
             }
 
             override fun writeValue(value: Any): String {
-                return JavalinJson.toJson(value)
+                return objectMapper.writeValueAsString(value)
             }
         })
     }

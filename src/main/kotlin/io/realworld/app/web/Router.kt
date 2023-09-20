@@ -32,7 +32,7 @@ class Router(
                 get(userController::getCurrent, Roles.AUTHENTICATED)
                 put(userController::update, Roles.AUTHENTICATED)
             }
-            path("profiles/:username") {
+            path("profiles/{username}") {
                 get(profileController::get)
                 path("follow") {
                     post(profileController::follow, Roles.AUTHENTICATED)
@@ -41,11 +41,11 @@ class Router(
             }
             path("articles") {
                 get("feed", articleController::feed, Roles.AUTHENTICATED)
-                path(":slug") {
+                path("{slug}") {
                     path("comments") {
                         post(commentController::add, Roles.AUTHENTICATED)
                         get(commentController::findBySlug)
-                        delete(":id", commentController::delete, Roles.AUTHENTICATED)
+                        delete("{id}", commentController::delete, Roles.AUTHENTICATED)
                     }
                     path("favorite") {
                         post(articleController::favorite, Roles.AUTHENTICATED)

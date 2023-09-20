@@ -7,9 +7,9 @@ import io.realworld.app.domain.service.CommentService
 
 class CommentController(private val commentService: CommentService) {
     fun add(ctx: Context) {
-        val slug = ctx.pathParam<String>("slug").get()
+        val slug = ctx.pathParam("slug")
         ctx.bodyValidator<CommentDTO>()
-            .check({ !it.comment?.body.isNullOrBlank() })
+            .check({ !it.comment?.body.isNullOrBlank() }, "Body is null")
             .get().apply {
                 commentService.add(slug, ctx.attribute("email")!!, this.comment!!).also {
                     ctx.json(CommentDTO(it))
@@ -18,7 +18,7 @@ class CommentController(private val commentService: CommentService) {
     }
 
     fun findBySlug(ctx: Context) {
-        ctx.pathParam<String>("slug").get().apply {
+        ctx.pathParam("slug").apply {
             commentService.findBySlug(this).also { comments ->
                 ctx.json(CommentsDTO(comments))
             }
@@ -26,8 +26,8 @@ class CommentController(private val commentService: CommentService) {
     }
 
     fun delete(ctx: Context) {
-        val slug = ctx.pathParam<String>("slug").get()
-        val id = ctx.pathParam<Long>("id").get()
-        commentService.delete(id, slug)
+        val slug = ctx.pathParam("slug")
+        val id = ctx.pathParam("id")
+        commentService.delete(id.toLong(), slug)
     }
 }
