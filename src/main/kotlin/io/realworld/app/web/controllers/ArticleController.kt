@@ -38,9 +38,9 @@ class ArticleController(private val articleService: ArticleService) {
 
     fun create(ctx: Context) {
         ctx.bodyValidator<ArticleDTO>()
-            .check({ !it.article?.title.isNullOrBlank() })
-            .check({ !it.article?.description.isNullOrBlank() })
-            .check({ !it.article?.body.isNullOrBlank() })
+            .check({ !it.article?.title.isNullOrBlank() }, "Title is null")
+            .check({ !it.article?.description.isNullOrBlank() }, "Description is null")
+            .check({ !it.article?.body.isNullOrBlank() }, "Body is null")
             .get().article?.also { article ->
             articleService.create(ctx.attribute("email"), article).apply {
                 ctx.json(ArticleDTO(this))
