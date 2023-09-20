@@ -30,18 +30,18 @@ class AppConfig : KoinComponent {
                 enableWebjars()
                 enableCorsForAllOrigins()
                 contextPath = getProperty("context")
-                addStaticFiles("/swagger")
+                // addStaticFiles("/swagger")
                 addSinglePageRoot("", "/swagger/swagger-ui.html")
                 server {
                     Server(getProperty("server_port") as Int)
                 }
+                authConfig.configure(this)
             }
         }.events {
             it.serverStopping {
                 StandAloneContext.stopKoin()
             }
         }
-        authConfig.configure(app)
         router.register(app)
         ErrorExceptionMapping.register(app)
         return app
@@ -49,11 +49,9 @@ class AppConfig : KoinComponent {
 
     private fun configureMapper() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-        JavalinJackson.configure(
-            jacksonObjectMapper()
+        JavalinJackson.defaultMapper()
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .setDateFormat(dateFormat)
-                .configure(SerializationFeature.WRITE_DATES_WITH_ZONE_ID, true),
-        )
+                .configure(SerializationFeature.WRITE_DATES_WITH_ZONE_ID, true)
     }
 }

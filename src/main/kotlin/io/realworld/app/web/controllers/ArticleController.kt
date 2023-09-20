@@ -27,8 +27,8 @@ class ArticleController(private val articleService: ArticleService) {
     }
 
     fun get(ctx: Context) {
-        ctx.pathParam<String>("slug")
-            .check({ it.isNotBlank() })
+        ctx.pathParamAsClass<String>("slug")
+            .check({ it.isNotBlank() }, "slug must not be blank")
             .get().also { slug ->
                 articleService.findBySlug(slug).apply {
                     ctx.json(ArticleDTO(this))
@@ -66,7 +66,7 @@ class ArticleController(private val articleService: ArticleService) {
     }
 
     fun favorite(ctx: Context) {
-        ctx.pathParam<String>("slug").get().also { slug ->
+        ctx.pathParam("slug").get().also { slug ->
             articleService.favorite(ctx.attribute("email"), slug).apply {
                 ctx.json(ArticleDTO(this))
             }
@@ -74,7 +74,7 @@ class ArticleController(private val articleService: ArticleService) {
     }
 
     fun unfavorite(ctx: Context) {
-        ctx.pathParam<String>("slug").get().also { slug ->
+        ctx.pathParam("slug").get().also { slug ->
             articleService.unfavorite(ctx.attribute("email"), slug).apply {
                 ctx.json(ArticleDTO(this))
             }
