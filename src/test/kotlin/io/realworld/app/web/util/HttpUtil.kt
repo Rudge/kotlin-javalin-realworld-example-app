@@ -6,6 +6,7 @@
 
 package io.javalin.util
 
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
@@ -18,7 +19,9 @@ import io.realworld.app.domain.UserDTO
 class HttpUtil(port: Int) {
     private val json = "application/json"
     val headers = mutableMapOf(Header.ACCEPT to json, Header.CONTENT_TYPE to json)
-    val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
+    val objectMapper = com.fasterxml.jackson.databind.ObjectMapper().registerModules(
+        KotlinModule(),
+    )
 
     init {
         Unirest.setObjectMapper(object : ObjectMapper {

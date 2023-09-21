@@ -19,6 +19,7 @@ class UserController(private val userService: UserService) {
 
     fun register(ctx: Context) {
         ctx.bodyValidator<UserDTO>()
+            .check({ !it.user?.email.isNullOrBlank() }, "Email is empty")
             .check({ it.user?.email?.isEmailValid() ?: true }, "Email is not valid")
             .check({ !it.user?.password.isNullOrBlank() }, "Password is empty")
             .check({ !it.user?.username.isNullOrBlank() }, "Username is empty")

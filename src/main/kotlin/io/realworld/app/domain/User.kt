@@ -4,7 +4,7 @@ data class UserDTO(val user: User? = null)
 
 data class User(
     val id: Long? = null,
-    val email: String,
+    val email: String? = null,
     val token: String? = null,
     val username: String? = null,
     val password: String? = null,

@@ -69,7 +69,7 @@ class UserRepository(private val dataSource: DataSource) {
     fun create(user: User): Long? {
         return transaction(Database.connect(dataSource)) {
             Users.insertAndGetId { row ->
-                row[Users.email] = user.email
+                row[Users.email] = user.email!!
                 row[Users.username] = user.username!!
                 row[Users.password] = user.password!!
                 row[Users.bio] = user.bio
@@ -81,7 +81,7 @@ class UserRepository(private val dataSource: DataSource) {
     fun update(email: String, user: User): User? {
         transaction(Database.connect(dataSource)) {
             Users.update({ Users.email eq email }) { row ->
-                row[Users.email] = user.email
+                row[Users.email] = user.email!!
                 if (user.username != null) {
                     row[Users.username] = user.username
                 }
@@ -96,7 +96,7 @@ class UserRepository(private val dataSource: DataSource) {
                 }
             }
         }
-        return findByEmail(user.email)
+        return findByEmail(user.email!!)
     }
 
     fun findIsFollowUser(email: String, userIdToFollow: Long): Boolean {
