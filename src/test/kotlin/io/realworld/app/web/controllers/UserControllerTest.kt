@@ -36,8 +36,9 @@ class UserControllerTest {
             UserDTO(),
         )
 
-        assertEquals(response.status, HttpStatus.UNPROCESSABLE_ENTITY_422)
-        assertTrue(response.body.errors["body"]!!.contains("can't be empty or invalid"))
+        assertEquals(HttpStatus.BAD_REQUEST_400, response.status)
+        val allErrors = response.body.allErrors
+        assertTrue(allErrors.contains("Password is empty"))
     }
 
     @Test
