@@ -33,7 +33,7 @@ class Router(
                 put(userController::update, Roles.AUTHENTICATED)
             }
             path("profiles/{username}") {
-                get(profileController::get)
+                get(profileController::get, Roles.ANYONE, Roles.AUTHENTICATED)
                 path("follow") {
                     post(profileController::follow, Roles.AUTHENTICATED)
                     delete(profileController::unfollow, Roles.AUTHENTICATED)
@@ -44,22 +44,22 @@ class Router(
                 path("{slug}") {
                     path("comments") {
                         post(commentController::add, Roles.AUTHENTICATED)
-                        get(commentController::findBySlug)
+                        get(commentController::findBySlug, Roles.ANYONE, Roles.AUTHENTICATED)
                         delete("{id}", commentController::delete, Roles.AUTHENTICATED)
                     }
                     path("favorite") {
                         post(articleController::favorite, Roles.AUTHENTICATED)
                         delete(articleController::unfavorite, Roles.AUTHENTICATED)
                     }
-                    get(articleController::get)
+                    get(articleController::get, Roles.ANYONE, Roles.AUTHENTICATED)
                     put(articleController::update, Roles.AUTHENTICATED)
                     delete(articleController::delete, Roles.AUTHENTICATED)
                 }
-                get(articleController::findBy)
+                get(articleController::findBy, Roles.ANYONE, Roles.AUTHENTICATED)
                 post(articleController::create, Roles.AUTHENTICATED)
             }
             path("tags") {
-                get(tagController::get)
+                get(tagController::get, Roles.ANYONE, Roles.AUTHENTICATED)
             }
         }
     }
