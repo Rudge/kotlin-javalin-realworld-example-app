@@ -6,7 +6,6 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.apibuilder.ApiBuilder.put
-import io.javalin.core.security.SecurityUtil.roles
 import io.realworld.app.config.Roles
 import io.realworld.app.web.controllers.ArticleController
 import io.realworld.app.web.controllers.CommentController
@@ -20,48 +19,47 @@ class Router(
     private val profileController: ProfileController,
     private val articleController: ArticleController,
     private val commentController: CommentController,
-    private val tagController: TagController
+    private val tagController: TagController,
 ) : KoinComponent {
 
     fun register(app: Javalin) {
-        val rolesOptionalAuthenticated = roles(Roles.ANYONE, Roles.AUTHENTICATED)
         app.routes {
             path("users") {
-                post(userController::register, roles(Roles.ANYONE))
-                post("login", userController::login, roles(Roles.ANYONE))
+                post(userController::register, Roles.ANYONE)
+                post("login", userController::login, Roles.ANYONE)
             }
             path("user") {
-                get(userController::getCurrent, roles(Roles.AUTHENTICATED))
-                put(userController::update, roles(Roles.AUTHENTICATED))
+                get(userController::getCurrent, Roles.AUTHENTICATED)
+                put(userController::update, Roles.AUTHENTICATED)
             }
-            path("profiles/:username") {
-                get(profileController::get, rolesOptionalAuthenticated)
+            path("profiles/{username}") {
+                get(profileController::get, Roles.ANYONE, Roles.AUTHENTICATED)
                 path("follow") {
-                    post(profileController::follow, roles(Roles.AUTHENTICATED))
-                    delete(profileController::unfollow, roles(Roles.AUTHENTICATED))
+                    post(profileController::follow, Roles.AUTHENTICATED)
+                    delete(profileController::unfollow, Roles.AUTHENTICATED)
                 }
             }
             path("articles") {
-                get("feed", articleController::feed, roles(Roles.AUTHENTICATED))
-                path(":slug") {
+                get("feed", articleController::feed, Roles.AUTHENTICATED)
+                path("{slug}") {
                     path("comments") {
-                        post(commentController::add, roles(Roles.AUTHENTICATED))
-                        get(commentController::findBySlug, rolesOptionalAuthenticated)
-                        delete(":id", commentController::delete, roles(Roles.AUTHENTICATED))
+                        post(commentController::add, Roles.AUTHENTICATED)
+                        get(commentController::findBySlug, Roles.ANYONE, Roles.AUTHENTICATED)
+                        delete("{id}", commentController::delete, Roles.AUTHENTICATED)
                     }
                     path("favorite") {
-                        post(articleController::favorite, roles(Roles.AUTHENTICATED))
-                        delete(articleController::unfavorite, roles(Roles.AUTHENTICATED))
+                        post(articleController::favorite, Roles.AUTHENTICATED)
+                        delete(articleController::unfavorite, Roles.AUTHENTICATED)
                     }
-                    get(articleController::get, rolesOptionalAuthenticated)
-                    put(articleController::update, roles(Roles.AUTHENTICATED))
-                    delete(articleController::delete, roles(Roles.AUTHENTICATED))
+                    get(articleController::get, Roles.ANYONE, Roles.AUTHENTICATED)
+                    put(articleController::update, Roles.AUTHENTICATED)
+                    delete(articleController::delete, Roles.AUTHENTICATED)
                 }
-                get(articleController::findBy, rolesOptionalAuthenticated)
-                post(articleController::create, roles(Roles.AUTHENTICATED))
+                get(articleController::findBy, Roles.ANYONE, Roles.AUTHENTICATED)
+                post(articleController::create, Roles.AUTHENTICATED)
             }
             path("tags") {
-                get(tagController::get, rolesOptionalAuthenticated)
+                get(tagController::get, Roles.ANYONE, Roles.AUTHENTICATED)
             }
         }
     }

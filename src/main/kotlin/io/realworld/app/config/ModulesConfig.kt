@@ -50,7 +50,12 @@ object ModulesConfig {
         single { TagService(get()) }
         single { TagRepository(get()) }
     }
-    internal val allModules = listOf(ModulesConfig.configModule, ModulesConfig.userModule,
-            ModulesConfig.articleModule, ModulesConfig.profileModule, ModulesConfig.commentModule,
-            ModulesConfig.tagModule)
+    internal val allModules = listOf(
+        ModulesConfig.configModule,
+        ModulesConfig.userModule,
+        ModulesConfig.articleModule,
+        ModulesConfig.profileModule,
+        ModulesConfig.commentModule,
+        ModulesConfig.tagModule,
+    )
 }

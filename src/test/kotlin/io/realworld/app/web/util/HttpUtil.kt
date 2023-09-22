@@ -6,11 +6,11 @@
 
 package io.javalin.util
 
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import io.javalin.core.util.Header
-import io.javalin.plugin.json.JavalinJson
 import io.realworld.app.domain.Article
 import io.realworld.app.domain.ArticleDTO
 import io.realworld.app.domain.User
@@ -19,15 +19,18 @@ import io.realworld.app.domain.UserDTO
 class HttpUtil(port: Int) {
     private val json = "application/json"
     val headers = mutableMapOf(Header.ACCEPT to json, Header.CONTENT_TYPE to json)
+    val objectMapper = com.fasterxml.jackson.databind.ObjectMapper().registerModules(
+        KotlinModule(),
+    )
 
     init {
         Unirest.setObjectMapper(object : ObjectMapper {
             override fun <T> readValue(value: String, valueType: Class<T>): T {
-                return JavalinJson.fromJson(value, valueType)
+                return objectMapper.readValue(value, valueType)
             }
 
             override fun writeValue(value: Any): String {
-                return JavalinJson.toJson(value)
+                return objectMapper.writeValueAsString(value)
             }
         })
     }
@@ -36,22 +39,22 @@ class HttpUtil(port: Int) {
     val origin: String = "http://localhost:$port"
 
     inline fun <reified T> post(path: String) =
-            Unirest.post(origin + path).headers(headers).asObject(T::class.java)
+        Unirest.post(origin + path).headers(headers).asObject(T::class.java)
 
     inline fun <reified T> post(path: String, body: Any) =
-            Unirest.post(origin + path).headers(headers).body(body).asObject(T::class.java)
+        Unirest.post(origin + path).headers(headers).body(body).asObject(T::class.java)
 
     inline fun <reified T> get(path: String, params: Map<String, Any>? = null) =
-            Unirest.get(origin + path).headers(headers).queryString(params).asObject(T::class.java)
+        Unirest.get(origin + path).headers(headers).queryString(params).asObject(T::class.java)
 
     inline fun <reified T> put(path: String, body: Any) =
-            Unirest.put(origin + path).headers(headers).body(body).asObject(T::class.java)
+        Unirest.put(origin + path).headers(headers).body(body).asObject(T::class.java)
 
     inline fun <reified T> deleteWithResponseBody(path: String) =
-            Unirest.delete(origin + path).headers(headers).asObject(T::class.java)
+        Unirest.delete(origin + path).headers(headers).asObject(T::class.java)
 
     fun delete(path: String) =
-            Unirest.delete(origin + path).headers(headers).asString()
+        Unirest.delete(origin + path).headers(headers).asString()
 
     fun loginAndSetTokenHeader(email: String, password: String) {
         val userDTO = UserDTO(User(email = email, password = password))
@@ -78,9 +81,13 @@ class HttpUtil(port: Int) {
     }
 
     fun createArticle(): HttpResponse<ArticleDTO> {
-        return createArticle(Article(title = "How to train your dragon",
+        return createArticle(
+            Article(
+                title = "How to train your dragon",
                 description = "Ever wonder how?",
                 body = "Very carefully.",
-                tagList = listOf("dragons", "training")))
+                tagList = listOf("dragons", "training"),
+            ),
+        )
     }
 }

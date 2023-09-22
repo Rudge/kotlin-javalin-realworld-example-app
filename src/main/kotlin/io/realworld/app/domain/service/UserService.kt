@@ -17,16 +17,18 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
     private val base64Encoder = Base64.getEncoder()
 
     fun create(user: User): User {
-        userRepository.findByEmail(user.email).takeIf { it != null }?.apply {
-            throw HttpResponseException(HttpStatus.BAD_REQUEST_400,
-                    "Email already registered!")
+        userRepository.findByEmail(user.email!!).takeIf { it != null }?.apply {
+            throw HttpResponseException(
+                HttpStatus.BAD_REQUEST_400,
+                "Email already registered!",
+            )
         }
         userRepository.create(user.copy(password = String(base64Encoder.encode(Cipher.encrypt(user.password)))))
         return user.copy(token = generateJwtToken(user))
     }
 
     fun authenticate(user: User): User {
-        val userFound = userRepository.findByEmail(user.email)
+        val userFound = userRepository.findByEmail(user.email!!)
         if (userFound?.password == String(base64Encoder.encode(Cipher.encrypt(user.password)))) {
             return userFound.copy(token = generateJwtToken(userFound))
         }

@@ -26,11 +26,13 @@ private object Comments : LongIdTable() {
     val author: Column<Long> = long("author")
 
     fun toDomain(row: ResultRow, author: User?): Comment {
-        return Comment(id = row[Comments.id].value,
-                body = row[Comments.body],
-                createdAt = row[Comments.createdAt].toDate(),
-                updatedAt = row[Comments.updatedAt].toDate(),
-                author = author)
+        return Comment(
+            id = row[Comments.id].value,
+            body = row[Comments.body],
+            createdAt = row[Comments.createdAt].toDate(),
+            updatedAt = row[Comments.updatedAt].toDate(),
+            author = author,
+        )
     }
 }
 
@@ -51,7 +53,7 @@ class CommentRepository(private val dataSource: DataSource) {
         var user: User? = null
         return transaction(Database.connect(dataSource)) {
             user = Users.select { Users.email eq email }
-                    .map { Users.toDomain(it) }.firstOrNull() ?: throw BadRequestResponse()
+                .map { Users.toDomain(it) }.firstOrNull() ?: throw BadRequestResponse()
             Comments.insertAndGetId { row ->
                 row[body] = comment.body
                 row[createdAt] = DateTime()
@@ -67,16 +69,16 @@ class CommentRepository(private val dataSource: DataSource) {
     fun findBySlug(slug: String): List<Comment> {
         return transaction(Database.connect(dataSource)) {
             Comments.join(Users, JoinType.INNER, additionalConstraint = { Comments.author eq Users.id })
-                    .select { Comments.slug eq slug }
-                    .map { Comments.toDomain(it, Users.toDomain(it)) }
+                .select { Comments.slug eq slug }
+                .map { Comments.toDomain(it, Users.toDomain(it)) }
         }
     }
 
     fun delete(id: Long, slug: String) {
         transaction(Database.connect(dataSource)) {
             Comments.deleteWhere { Comments.id eq id and (Comments.slug eq slug) }
-                    .takeIf { it == 0 }
-                    ?.apply { throw NotFoundResponse() }
+                .takeIf { it == 0 }
+                ?.apply { throw NotFoundResponse() }
         }
     }
 }

@@ -1,13 +1,26 @@
 package io.realworld.app.web
 
 import com.auth0.jwt.exceptions.JWTVerificationException
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.javalin.Javalin
 import io.javalin.http.*
 import org.eclipse.jetty.http.HttpStatus
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.slf4j.LoggerFactory
 
-internal data class ErrorResponse(val errors: Map<String, List<String?>>)
+@JsonIgnoreProperties(ignoreUnknown = true)
+internal data class ErrorResponseMessage(
+    val message: String
+)
+
+internal data class ErrorResponse(
+    val errors: Map<String, List<String?>> = emptyMap(),
+    @JsonProperty("REQUEST_BODY")
+    val internalErrors: List<ErrorResponseMessage> = emptyList()
+) {
+    val allErrors = (errors["body"] ?: emptyList()) + internalErrors.map { it.message }
+}
 
 object ErrorExceptionMapping {
     private val LOG = LoggerFactory.getLogger(ErrorExceptionMapping::class.java)
