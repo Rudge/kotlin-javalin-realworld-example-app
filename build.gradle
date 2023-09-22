@@ -12,7 +12,7 @@ ext {
     auth0_jwt_version = "3.4.1"
     hikaricp_version = "3.3.0"
     h2_version = "1.4.197"
-    exposed_version = "0.11.1"
+    exposed_version = "0.17.14"
     slugify_version = "2.1.+"
     swagger_version = "3.24.3"
     swagger_core_version = "2.0.9"
