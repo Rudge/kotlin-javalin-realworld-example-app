@@ -13,7 +13,7 @@ ext {
     hikaricp_version = "3.3.0"
     h2_version = "1.4.197"
     exposed_version = "0.17.14"
-    slugify_version = "2.1.+"
+    slugify_version = "3.0.+"
     swagger_version = "3.24.3"
     swagger_core_version = "2.0.9"
     pgsql_version = "42.6.0"
