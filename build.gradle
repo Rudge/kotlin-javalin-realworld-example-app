@@ -7,7 +7,7 @@ ext {
     slf4j_version = "2.0.9"
     // not easy to update
     koin_version = "1.0.2"
-    junit_version = "4.12"
+    junit_version = "4.13.2"
     unirest_version = "1.4.9"
     auth0_jwt_version = "3.4.1"
     hikaricp_version = "3.3.0"
