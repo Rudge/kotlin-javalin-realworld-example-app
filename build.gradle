@@ -2,7 +2,7 @@ group 'io.realworld'
 version '1.0-SNAPSHOT'
 
 ext {
-    javalin_version = "4.6.1"
+    javalin_version = "5.6.3"
     jackson_version = "2.13.5"
     slf4j_version = "2.0.9"
     // not easy to update
