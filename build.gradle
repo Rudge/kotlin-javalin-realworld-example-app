@@ -11,7 +11,7 @@ ext {
     unirest_version = "1.4.9"
     auth0_jwt_version = "3.4.1"
     hikaricp_version = "5.0.1"
-    h2_version = "1.4.197"
+    h2_version = "2.3.230"
     exposed_version = "0.17.14"
     slugify_version = "2.1.+"
     swagger_version = "3.24.3"
